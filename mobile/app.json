@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Dang Bazaar",
+    "slug": "dang-bazaar",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "dangbazaar",
+    "userInterfaceStyle": "automatic",
+    "platforms": [
+      "android",
+      "ios"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "permissions": []
+    },
+    "plugins": [
+      "expo-font"
+    ]
+  }
+}
