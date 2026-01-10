@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { FileText, Image, Clock, CheckCircle, Loader2, Truck, Package, Trash2 } from 'lucide-react';
+import { FileText, Image, Clock, CheckCircle, Loader2, Truck, Package, Trash2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
@@ -154,6 +154,18 @@ export default function MyShoppingLists() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-4 flex items-center">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-gray-600 hover:text-purple-600"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Button>
+        </div>
         <h1 className="text-3xl font-bold text-gray-900 mb-8">My Shopping Lists</h1>
 
         {/* User Info (Replaces Search) */}

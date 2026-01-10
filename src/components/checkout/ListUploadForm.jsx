@@ -52,6 +52,9 @@ export default function ListUploadForm({ onListSubmit, onPhotosSubmit }) {
     setPhotos(prev => [...prev, ...validUrls]);
     setUploading(false);
     toast.success(`${validUrls.length} photo(s) uploaded`);
+    if (onPhotosSubmit && validUrls.length > 0) {
+      onPhotosSubmit(validUrls);
+    }
   };
 
   const removePhoto = (index) => {
@@ -88,6 +91,7 @@ export default function ListUploadForm({ onListSubmit, onPhotosSubmit }) {
       setListText('');
       setPhotos([]);
       setCustomerInfo({ name: '', phone: '', email: '' });
+      onListSubmit?.();
     } catch (error) {
       toast.error('Failed to submit list. Please try again.');
     }

@@ -3,11 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 import Hero3D from '@/components/home/Hero3D';
 import CategoryGrid from '@/components/home/CategoryGrid';
 import FeaturedProducts from '@/components/home/FeaturedProducts';
-import WhyChooseUs from '@/components/home/WhyChooseUs';
 import PromoSection from '@/components/home/PromoSection';
 import PromotionBanners from '@/components/home/PromotionBanners';
 import PromotionPopup from '@/components/home/PromotionPopup';
-import TrustBadges from '@/components/home/TrustBadges';
+import WhyChooseUs from '@/components/home/WhyChooseUs';
 import Testimonials from '@/components/home/Testimonials';
 import ListUploadForm from '@/components/checkout/ListUploadForm';
 import { Loader2 } from 'lucide-react';
@@ -29,19 +28,6 @@ export default function Home() {
   return (
     <div className="bg-gray-50">
       <Hero3D />
-      <PromotionPopup />
-      <PromotionBanners />
-      <PromoSection />
-      <CategoryGrid categories={categories} />
-      {isLoading ? (
-        <div className="py-16 flex justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
-        </div>
-      ) : (
-        <FeaturedProducts products={featuredProducts} />
-      )}
-
-      <TrustBadges />
 
       {/* List Upload Section */}
       <section className="py-12 bg-white border-y border-gray-200">
@@ -56,8 +42,20 @@ export default function Home() {
         </div>
       </section>
 
-      <Testimonials />
+      <PromotionPopup />
+      <PromotionBanners />
+      <PromoSection />
+      <CategoryGrid categories={categories} />
+      {isLoading ? (
+        <div className="py-16 flex justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+        </div>
+      ) : (
+        <FeaturedProducts products={featuredProducts} />
+      )}
+
       <WhyChooseUs />
+      <Testimonials />
     </div>
   );
 }

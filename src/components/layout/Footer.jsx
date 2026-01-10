@@ -65,10 +65,10 @@ export default function Footer() {
           <div>
             <div className="flex items-center gap-3 mb-6">
               <div className="w-14 h-14 bg-gradient-to-br from-purple-600 via-pink-600 to-red-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-black text-2xl">D</span>
+                <span className="text-white font-black text-2xl">SR</span>
               </div>
               <div>
-                <h3 className="font-black text-xl bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 bg-clip-text text-transparent">Dang Bazaar</h3>
+                <h3 className="font-black text-xl bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 bg-clip-text text-transparent">ShreeramMart</h3>
                 <p className="text-xs text-gray-400 font-medium">Local Delivery Service</p>
               </div>
             </div>
@@ -184,10 +184,10 @@ export default function Footer() {
         )}
 
         <div className="border-t border-gray-800 mt-10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
-          <p>© 2025 Dang Bazaar. {t('allRightsReserved')}</p>
+          <p>© 2025 ShreeramMart. {t('allRightsReserved')}</p>
           <p className="text-gray-500">{t('madeWithLove')}</p>
         </div>
       </div>
     </footer>
-  )
+  );
 }

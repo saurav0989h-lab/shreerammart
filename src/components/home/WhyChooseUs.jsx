@@ -1,114 +1,102 @@
-import { Truck, Shield, Clock, Wallet, MapPin, HeartHandshake } from 'lucide-react';
+import { Truck, Shield, Clock, Wallet, HeartHandshake, Gift, ShoppingBag } from 'lucide-react';
 import { useLanguage } from '@/components/ui/LanguageContext';
 import { motion } from 'framer-motion';
 
 export default function WhyChooseUs() {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
 
-  const features = [
+  const reasons = [
     {
-      icon: MapPin,
-      title: language === 'np' ? 'स्थानीय डेलिभरी' : 'Local Delivery',
-      description: language === 'np' ? 'हामी दाङ उपत्यकामा डेलिभरी गर्छौं - घोराही, तुलसीपुर र वरपरका क्षेत्रहरू' : 'We deliver across Dang Valley - Ghorahi, Tulsipur, and surrounding areas',
-      color: 'bg-red-100 text-red-600',
-      gradient: 'from-orange-400 to-rose-400'
-    },
-    {
-      icon: Wallet,
-      title: language === 'np' ? 'क्यास अन डेलिभरी' : 'Cash on Delivery',
-      description: language === 'np' ? 'अर्डर प्राप्त गर्दा भुक्तानी गर्नुहोस्। अग्रिम भुक्तानी आवश्यक छैन' : 'Pay when you receive your order. No advance payment needed',
-      color: 'bg-orange-100 text-orange-600',
-      gradient: 'from-amber-400 to-orange-400'
+      icon: Truck,
+      title: language === 'np' ? 'रु. १५०० माथि निःशुल्क डेलिभरी' : 'Free Delivery Above Rs. 1500',
+      description: language === 'np'
+        ? 'सबै क्षेत्रमा छिटो डेलिभरी, न्यूनतम कुना शुल्क'
+        : 'Fast coverage across Dang with no delivery fee above Rs. 1500.'
     },
     {
       icon: Clock,
-      title: language === 'np' ? 'उही दिन डेलिभरी' : 'Same Day Delivery',
-      description: language === 'np' ? 'दाङमा उही दिन डेलिभरीको लागि १२ बजे अघि अर्डर गर्नुहोस्' : 'Order before 12 PM for same day delivery in Dang',
-      color: 'bg-blue-100 text-blue-600',
-      gradient: 'from-blue-400 to-indigo-400'
+      title: language === 'np' ? 'उही दिन सेवाहरू' : 'Same-Day Convenience',
+      description: language === 'np'
+        ? 'दिउँसो १२ बजे अघि अर्डर गर्दा उही दिन डेलिभरी'
+        : 'Order before noon and receive your essentials the same day.'
     },
     {
       icon: Shield,
-      title: language === 'np' ? 'गुणस्तर ग्यारेन्टी' : 'Quality Guaranteed',
-      description: language === 'np' ? 'विश्वसनीय स्थानीय आपूर्तिकर्ताहरूबाट सिधै ताजा उत्पादनहरू' : 'Fresh products directly from trusted local suppliers',
-      color: 'bg-purple-100 text-purple-600',
-      gradient: 'from-violet-400 to-purple-400'
+      title: language === 'np' ? '१००% गुणस्तर' : 'Guaranteed Quality',
+      description: language === 'np'
+        ? 'निश्चिन्त किनमेलका लागि प्रत्येक वस्तु जाँचिएको र सुरक्षित'
+        : 'Every item is hand-checked for freshness and safety.'
+    },
+    {
+      icon: Wallet,
+      title: language === 'np' ? 'रेस्टुरेन्ट र इभेन्टमा १०% छुट' : '10% Off for Restaurants & Events',
+      description: language === 'np'
+        ? 'हामीसँग ठूला अर्डरहरूका लागि विशेष दर र फ्री डेलिभरी'
+        : 'Special pricing plus free delivery for restaurant, café, and event orders.'
+    },
+    {
+      icon: ShoppingBag,
+      title: language === 'np' ? 'व्यक्तिगत किनमेल सहयोग' : 'Personal Shopper Support',
+      description: language === 'np'
+        ? 'किनमेल सूची पठाउनुहोस्, हामीले मिलाएर तयारी गर्छौं'
+        : 'Send your shopping list and we handpick everything for you.'
+    },
+    {
+      icon: Gift,
+      title: language === 'np' ? 'गिफ्ट र कस्टम ह्याम्पर' : 'Gifting & Custom Hampers',
+      description: language === 'np'
+        ? 'कार्यक्रम र विशेष अवसरका लागि व्यक्तिगत गिफ्ट समाधान'
+        : 'Curated gifts and hampers tailored to your occasion.'
     },
     {
       icon: HeartHandshake,
-      title: language === 'np' ? 'स्थानीय समर्थन' : 'Support Local',
-      description: language === 'np' ? 'तपाईंको खरिदले दाङका स्थानीय व्यवसायहरूलाई समर्थन गर्छ' : 'Your purchase supports local businesses in Dang',
-      color: 'bg-pink-100 text-pink-600',
-      gradient: 'from-pink-400 to-rose-400'
-    },
-    {
-      icon: Truck,
-      title: language === 'np' ? 'व्यापार खाता' : 'Business Accounts',
-      description: language === 'np' ? 'रेस्टुरेन्ट र होटलहरूको लागि १०% छुट र नि:शुल्क डेलिभरी' : '10% discount & free delivery for restaurants & hotels',
-      color: 'bg-cyan-100 text-cyan-600',
-      gradient: 'from-cyan-400 to-teal-400'
+      title: language === 'np' ? 'स्थानीय व्यवसायलाई समर्थन' : 'Support Local Businesses',
+      description: language === 'np'
+        ? 'तपाईंको प्रत्येक किनमेलले दाङका स्थानीय आपूर्तिकर्तालाई सहयोग गर्छ'
+        : 'Every order helps small vendors and farmers in Dang.'
     }
   ];
 
   return (
-    <section className="py-20 bg-gray-50 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16 relative">
-          <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-32 h-32 bg-gradient-to-r from-red-500/20 to-purple-500/20 rounded-full blur-xl" />
+    <section className="py-16 bg-gradient-to-b from-white via-purple-50 to-white">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            className="relative text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 mb-4"
+            viewport={{ once: true }}
+            className="text-3xl sm:text-4xl font-black text-gray-900"
           >
-            {t('whyChooseUs')}
+            {language === 'np' ? 'श्रीराममार्ट किन रोज्ने?' : 'Why Choose ShreeramMart'}
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto"
+            className="mt-3 text-lg text-gray-600 max-w-2xl mx-auto"
           >
-            {language === 'np' ? 'हामी तपाईंको किनमेल अनुभव सहज बनाउन प्रतिबद्ध छौं' : "We're committed to making your shopping experience seamless"}
+            {language === 'np'
+              ? 'छिटो डेलिभरी, स्थानीय मूल्य र व्यक्तिगत सहयोग सहितको सम्पूर्ण किनमेल समाधान'
+              : 'The complete local shopping partner with fast delivery, fair pricing, and personal support.'}
           </motion.p>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {reasons.map((reason, index) => (
             <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
+              key={reason.title}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ y: -10 }}
-              className="group relative bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 preserve-3d"
+              transition={{ delay: index * 0.05 }}
+              className="bg-white border border-purple-100 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow flex flex-col gap-3"
             >
-              <div className={`
-                absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${feature.gradient} 
-                opacity-10 rounded-bl-full group-hover:scale-110 transition-transform duration-500
-              `} />
-
-              <div className={`
-                w-16 h-16 rounded-2xl ${feature.color} 
-                flex items-center justify-center mb-6 
-                shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-all duration-300
-              `}>
-                <feature.icon className="w-8 h-8" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-pink-500 text-white flex items-center justify-center">
+                <reason.icon className="w-6 h-6" />
               </div>
-
-              <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-red-500 transition-colors">
-                {feature.title}
-              </h3>
-
-              <p className="text-gray-600 leading-relaxed group-hover:text-gray-900 transition-colors">
-                {feature.description}
-              </p>
-
-              <div className="absolute bottom-6 right-8 opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-300">
-                <Truck className="w-6 h-6 text-gray-200" />
-              </div>
+              <h3 className="text-lg font-semibold text-gray-900">{reason.title}</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">{reason.description}</p>
             </motion.div>
           ))}
         </div>
