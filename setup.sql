@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS `homepage_slides` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `image_path` VARCHAR(255) NOT NULL,
+  `title` VARCHAR(255) DEFAULT NULL,
+  `caption` TEXT DEFAULT NULL,
+  `link_url` VARCHAR(500) DEFAULT NULL,
+  `display_order` INT(11) DEFAULT 0,
+  `is_active` TINYINT(1) DEFAULT 1 COMMENT '1=Active, 0=Inactive',
+  `slide_timer` INT(11) DEFAULT 5000 COMMENT 'Display time in milliseconds',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -38,6 +38,8 @@ export const BASE_HERO_PROMOTION_CONFIG = {
   feature3Subtext: 'Payment Available',
   backgroundImage: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1920&q=80',
   showPopup: true,
+  firstSlideDuration: 10, // seconds
+  normalSlideDuration: 6, // seconds
   featureCards: BASE_FEATURE_CARDS,
 };
 
@@ -79,6 +81,8 @@ export function mergeHeroPromotionConfig(storedConfig) {
     ...storedConfig,
     featureCards: mergedFeatureCards,
     showPopup: storedConfig.showPopup ?? defaults.showPopup,
+    firstSlideDuration: storedConfig.firstSlideDuration ?? defaults.firstSlideDuration,
+    normalSlideDuration: storedConfig.normalSlideDuration ?? defaults.normalSlideDuration,
   };
 }
 
@@ -92,6 +96,8 @@ export function getHeroPromotionSignature(config) {
     description: merged.description,
     backgroundImage: merged.backgroundImage,
     showPopup: merged.showPopup,
+    firstSlideDuration: merged.firstSlideDuration,
+    normalSlideDuration: merged.normalSlideDuration,
     featureCards: merged.featureCards.map((card) => ({
       title: card?.title,
       subtitle: card?.subtitle,

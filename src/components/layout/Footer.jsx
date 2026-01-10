@@ -3,7 +3,7 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '@/components/ui/LanguageContext';
-import { MapPin, Phone, Mail, Clock, Facebook, Instagram, ExternalLink, Store, Shield, CreditCard, Truck } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Facebook, Instagram, ExternalLink, Store, Shield, CreditCard, Truck, Wallet, Smartphone, Globe } from 'lucide-react';
 
 export default function Footer() {
   const { t } = useLanguage();
@@ -12,6 +12,25 @@ export default function Footer() {
     queryKey: ['footer-stores'],
     queryFn: () => base44.entities.ShopLocation.filter({ is_active: true }),
   });
+
+  const nepalPaymentMethods = [
+    'Cash on Delivery (COD)',
+    'eSewa',
+    'Fonepay',
+    'Bank Transfer'
+  ];
+
+  const indiaPaymentMethods = [
+    'UPI',
+    'PhonePe'
+  ];
+
+  const internationalPaymentMethods = [
+    'Visa',
+    'Mastercard',
+    'American Express',
+    'PayPal'
+  ];
 
   const getGoogleMapsUrl = (store) => {
     if (store.google_maps_url) return store.google_maps_url;
@@ -76,7 +95,48 @@ export default function Footer() {
               Your trusted local marketplace for groceries, dairy, bakery items,
               and furniture. Supporting local businesses in Dang Valley.
             </p>
-            <div className="flex gap-3">
+            <div className="mt-6 space-y-4">
+              <div>
+                <div className="flex items-center gap-2 text-emerald-400 text-xs font-semibold uppercase tracking-wide">
+                  <Wallet className="w-4 h-4" />
+                  <span>Nepal</span>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {nepalPaymentMethods.map(method => (
+                    <span key={method} className="px-3 py-1 rounded-full bg-white/5 text-xs md:text-sm text-gray-200 border border-white/10">
+                      {method}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 text-indigo-300 text-xs font-semibold uppercase tracking-wide">
+                  <Smartphone className="w-4 h-4" />
+                  <span>India</span>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {indiaPaymentMethods.map(method => (
+                    <span key={method} className="px-3 py-1 rounded-full bg-white/5 text-xs md:text-sm text-gray-200 border border-white/10">
+                      {method}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 text-blue-300 text-xs font-semibold uppercase tracking-wide">
+                  <Globe className="w-4 h-4" />
+                  <span>International</span>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {internationalPaymentMethods.map(method => (
+                    <span key={method} className="px-3 py-1 rounded-full bg-white/5 text-xs md:text-sm text-gray-200 border border-white/10">
+                      {method}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
               <a href="#" className="w-10 h-10 rounded-full bg-white/10 hover:bg-purple-600 flex items-center justify-center transition-all hover:scale-110">
                 <Facebook className="w-5 h-5" />
               </a>

@@ -62,7 +62,7 @@ export default function Header({ user, onLogout }) {
                 <Phone className="w-3.5 h-3.5" /> +977-9844988588
               </span>
               <span className="flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5" /> Free Delivery over Rs. 500
+                <Sparkles className="w-3.5 h-3.5" /> Free Delivery over Rs. 1500
               </span>
             </div>
             <div className="flex items-center gap-4">

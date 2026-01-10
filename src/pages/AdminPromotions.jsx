@@ -8,10 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
-import { Sparkles, Truck, Save, Eye, Megaphone, Image as ImageIcon, Plus, Upload, X, Edit, Trash2, Loader2, Check } from 'lucide-react';
+import { Sparkles, Truck, Save, Eye, Megaphone, Image as ImageIcon, Plus, Upload, X, Edit, Trash2, Loader2, Check, ChevronUp, ChevronDown, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import { getDefaultFeatureCards, mergeHeroPromotionConfig, parseHeroPromotionSetting } from '@/lib/heroPromotionConfig';
+import Hero3D from '@/components/home/Hero3D';
 
 export default function AdminPromotions() {
   const queryClient = useQueryClient();
@@ -51,6 +52,17 @@ export default function AdminPromotions() {
     [storedConfig]
   );
 
+  const orderedBanners = useMemo(() => {
+    return [...banners].sort((a, b) => {
+      const orderA = Number.isFinite(Number(a.display_order)) ? Number(a.display_order) : Number.MAX_SAFE_INTEGER;
+      const orderB = Number.isFinite(Number(b.display_order)) ? Number(b.display_order) : Number.MAX_SAFE_INTEGER;
+      if (orderA === orderB) {
+        return new Date(a.created_date || 0) - new Date(b.created_date || 0);
+      }
+      return orderA - orderB;
+    });
+  }, [banners]);
+
   const [formData, setFormData] = useState(currentConfig);
 
   useEffect(() => {
@@ -63,6 +75,7 @@ export default function AdminPromotions() {
     link_url: '',
     is_active: true,
     display_order: 0,
+    display_duration: 7,
     start_date: '',
     end_date: ''
   });
@@ -155,6 +168,68 @@ export default function AdminPromotions() {
     }
   });
 
+  const reorderBannersMutation = useMutation({
+    mutationFn: async ({ bannerId, direction }) => {
+      if (!banners.length) return;
+
+      const sorted = [...orderedBanners];
+      const currentIndex = sorted.findIndex((banner) => banner.id === bannerId);
+      const targetIndex = currentIndex + direction;
+
+      if (currentIndex === -1 || targetIndex < 0 || targetIndex >= sorted.length) {
+        return;
+      }
+
+      const currentBanner = sorted[currentIndex];
+      const targetBanner = sorted[targetIndex];
+
+      const currentOrder = Number.isFinite(Number(currentBanner.display_order))
+        ? Number(currentBanner.display_order)
+        : currentIndex;
+      const targetOrder = Number.isFinite(Number(targetBanner.display_order))
+        ? Number(targetBanner.display_order)
+        : targetIndex;
+
+      await Promise.all([
+        base44.entities.PromotionBanner.update(currentBanner.id, { display_order: targetOrder }),
+        base44.entities.PromotionBanner.update(targetBanner.id, { display_order: currentOrder }),
+      ]);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['promotion-banners'] });
+      toast.success('Banner order updated');
+    },
+    onError: (error) => {
+      toast.error('Failed to reorder banners: ' + error.message);
+    },
+  });
+
+  const repositionBannerMutation = useMutation({
+    mutationFn: async ({ bannerId, targetIndex }) => {
+      if (!orderedBanners.length) return;
+
+      const sorted = [...orderedBanners];
+      const currentIndex = sorted.findIndex((b) => b.id === bannerId);
+      if (currentIndex === -1) return;
+
+      const [removed] = sorted.splice(currentIndex, 1);
+      const safeIndex = Math.min(Math.max(targetIndex, 0), sorted.length);
+      sorted.splice(safeIndex, 0, removed);
+
+      const updates = sorted.map((banner, idx) => ({ id: banner.id, order_index: idx }));
+      await Promise.all(
+        updates.map((u) => base44.entities.PromotionBanner.update(u.id, { display_order: u.order_index }))
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['promotion-banners'] });
+      toast.success('Banner order updated');
+    },
+    onError: (error) => {
+      toast.error('Failed to set banner position: ' + error.message);
+    },
+  });
+
   const handleSubmit = (e) => {
     e.preventDefault();
     saveMutation.mutate(formData);
@@ -196,6 +271,7 @@ export default function AdminPromotions() {
         link_url: banner.link_url || '',
         is_active: banner.is_active !== false,
         display_order: banner.display_order || 0,
+        display_duration: banner.display_duration || 7,
         start_date: banner.start_date || '',
         end_date: banner.end_date || ''
       });
@@ -208,6 +284,7 @@ export default function AdminPromotions() {
         link_url: '',
         is_active: true,
         display_order: banners.length,
+        display_duration: 7,
         start_date: '',
         end_date: ''
       });
@@ -278,6 +355,10 @@ export default function AdminPromotions() {
     }
   };
 
+  const handleReorderBanner = (bannerId, direction) => {
+    reorderBannersMutation.mutate({ bannerId, direction });
+  };
+
   if (isLoading) {
     return (
       <div className="flex h-screen bg-gray-50">
@@ -309,6 +390,24 @@ export default function AdminPromotions() {
               </div>
             </div>
           </div>
+
+          {/* Homepage Slider Preview */}
+          <Card className="mb-6 border-purple-200 bg-white">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-purple-900">
+                <Sparkles className="w-5 h-5 text-purple-600" />
+                Homepage Slider Preview
+              </CardTitle>
+              <CardDescription className="text-purple-700">
+                Live view of the hero slider using the current promotion settings and banner lineup
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-3xl border border-purple-100 overflow-hidden shadow">
+                <Hero3D />
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Currently Running Banners Status */}
           <Card className="mb-6 border-green-200 bg-green-50">
@@ -408,7 +507,7 @@ export default function AdminPromotions() {
                 <div className="flex justify-center py-8">
                   <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
                 </div>
-              ) : banners.length === 0 ? (
+              ) : orderedBanners.length === 0 ? (
                 <div className="text-center py-12 bg-gray-50 rounded-lg">
                   <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
                   <p className="text-gray-600 mb-4">No promotional banners yet</p>
@@ -423,10 +522,12 @@ export default function AdminPromotions() {
                 </div>
               ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {banners.map((banner) => {
+                  {orderedBanners.map((banner, index) => {
                     const isExpired = banner.end_date && new Date(banner.end_date) < new Date();
                     const isScheduled = banner.start_date && new Date(banner.start_date) > new Date();
                     const isCurrentlyActive = banner.is_active && !isExpired && !isScheduled;
+                    const curatedDuration = Number(banner.display_duration) || 0;
+                    const numericOrder = Number.isFinite(Number(banner.display_order)) ? Number(banner.display_order) : index;
 
                     return (
                       <div
@@ -462,13 +563,21 @@ export default function AdminPromotions() {
                             </div>
                           )}
                         </div>
-                        <div className="p-3">
-                          <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">{banner.title}</h3>
+                        <div className="p-3 space-y-2">
+                          <div className="flex items-center justify-between text-xs uppercase tracking-wide text-gray-500">
+                            <span>Slide #{index + 1}</span>
+                            <span>Order {numericOrder}</span>
+                          </div>
+                          <h3 className="font-semibold text-gray-900 line-clamp-1">{banner.title}</h3>
                           {banner.description && (
-                            <p className="text-sm text-gray-600 line-clamp-2 mb-2">{banner.description}</p>
+                            <p className="text-sm text-gray-600 line-clamp-2">{banner.description}</p>
                           )}
+                          <div className="flex items-center gap-2 text-xs text-gray-500">
+                            <Clock className="w-4 h-4" />
+                            <span>{curatedDuration > 0 ? `${curatedDuration}s` : 'Default timing'}</span>
+                          </div>
                           {(banner.start_date || banner.end_date) && (
-                            <div className="text-xs text-gray-500 mb-2 space-y-0.5">
+                            <div className="text-xs text-gray-500 space-y-0.5">
                               {banner.start_date && (
                                 <div>Start: {new Date(banner.start_date).toLocaleDateString()}</div>
                               )}
@@ -477,7 +586,53 @@ export default function AdminPromotions() {
                               )}
                             </div>
                           )}
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 pt-1">
+                            <div className="flex items-center gap-1">
+                              <Button
+                                size="icon"
+                                variant="outline"
+                                className="h-8 w-8"
+                                type="button"
+                                onClick={() => handleReorderBanner(banner.id, -1)}
+                                disabled={index === 0 || reorderBannersMutation.isPending}
+                                title="Move up"
+                              >
+                                <ChevronUp className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="outline"
+                                className="h-8 w-8"
+                                type="button"
+                                onClick={() => handleReorderBanner(banner.id, 1)}
+                                disabled={index === orderedBanners.length - 1 || reorderBannersMutation.isPending}
+                                title="Move down"
+                              >
+                                <ChevronDown className="w-4 h-4" />
+                              </Button>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-xs"
+                                type="button"
+                                onClick={() => repositionBannerMutation.mutate({ bannerId: banner.id, targetIndex: 0 })}
+                                disabled={repositionBannerMutation.isPending || index === 0}
+                              >
+                                Set as First
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-xs"
+                                type="button"
+                                onClick={() => repositionBannerMutation.mutate({ bannerId: banner.id, targetIndex: 1 })}
+                                disabled={repositionBannerMutation.isPending || orderedBanners.length < 2}
+                              >
+                                Set as Second
+                              </Button>
+                            </div>
                             <Button
                               size="sm"
                               variant="outline"
@@ -577,6 +732,45 @@ export default function AdminPromotions() {
                     checked={formData.showPopup !== false}
                     onCheckedChange={(checked) => handleChange('showPopup', checked)}
                   />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Slider Timing */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-purple-600" />
+                  Slider Timing
+                </CardTitle>
+                <CardDescription>Control how long the first slide and the remaining slides stay visible</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="firstSlideDuration">First Slide Duration (seconds)</Label>
+                    <Input
+                      id="firstSlideDuration"
+                      type="number"
+                      min={3}
+                      value={formData.firstSlideDuration}
+                      onChange={(e) => handleChange('firstSlideDuration', parseInt(e.target.value, 10) || 0)}
+                      className="mt-1"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Default 10s. Shown on the very first slide.</p>
+                  </div>
+                  <div>
+                    <Label htmlFor="normalSlideDuration">Other Slides Duration (seconds)</Label>
+                    <Input
+                      id="normalSlideDuration"
+                      type="number"
+                      min={3}
+                      value={formData.normalSlideDuration}
+                      onChange={(e) => handleChange('normalSlideDuration', parseInt(e.target.value, 10) || 0)}
+                      className="mt-1"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Default 6s. Used for slides after the first.</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -1080,6 +1274,21 @@ export default function AdminPromotions() {
                 </div>
               </div>
               <p className="text-xs text-blue-600 mt-2">Leave empty for permanent display. Banner will auto-activate/deactivate based on dates.</p>
+            </div>
+
+            {/* Slide Duration */}
+            <div>
+              <Label htmlFor="display-duration">Slide Duration (seconds)</Label>
+              <Input
+                id="display-duration"
+                type="number"
+                min={3}
+                max={60}
+                value={bannerFormData.display_duration}
+                onChange={(e) => handleBannerChange('display_duration', Math.max(3, Math.min(60, parseInt(e.target.value, 10) || 0)))}
+                className="mt-1"
+              />
+              <p className="text-xs text-gray-500 mt-1">How long this slide stays visible before auto-advancing. Minimum 3 seconds.</p>
             </div>
 
             {/* Display Order */}

@@ -4,9 +4,14 @@ import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useHeroPromotionConfig } from '@/hooks/useHeroPromotionConfig';
 
 export default function PromotionBanners() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { config } = useHeroPromotionConfig();
+  const DEFAULT_DURATION = Math.max(3000, (config.normalSlideDuration ?? 6) * 1000);
+  const FIRST_DURATION = Math.max(3000, (config.firstSlideDuration ?? 10) * 1000);
+  const MIN_DURATION = 3000;
 
   // Fetch active promotion banners
   const { data: allBanners = [] } = useQuery({
@@ -35,14 +40,28 @@ export default function PromotionBanners() {
 
   // Auto-advance carousel
   useEffect(() => {
-    if (banners.length <= 1) return;
+    if (currentIndex >= banners.length) {
+      setCurrentIndex(0);
+    }
+  }, [banners.length, currentIndex]);
 
-    const timer = setInterval(() => {
+  useEffect(() => {
+    if (banners.length <= 1) return undefined;
+
+    const currentBanner = banners[currentIndex];
+    const durationSeconds = Number(currentBanner?.display_duration) || 0;
+    const baseDuration = currentIndex === 0 ? FIRST_DURATION : DEFAULT_DURATION;
+    const durationMs = Math.max(
+      MIN_DURATION,
+      durationSeconds > 0 ? durationSeconds * 1000 : baseDuration
+    );
+
+    const timer = setTimeout(() => {
       setCurrentIndex((prev) => (prev + 1) % banners.length);
-    }, 5000); // Change every 5 seconds
+    }, durationMs);
 
-    return () => clearInterval(timer);
-  }, [banners.length]);
+    return () => clearTimeout(timer);
+  }, [banners, currentIndex, DEFAULT_DURATION, FIRST_DURATION]);
 
   const nextBanner = () => {
     setCurrentIndex((prev) => (prev + 1) % banners.length);

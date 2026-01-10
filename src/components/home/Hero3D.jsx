@@ -1,179 +1,291 @@
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Sparkles, Clock, Truck, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import { useLanguage } from '@/components/ui/LanguageContext';
-import { Truck, Clock, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
 import { useHeroPromotionConfig } from '@/hooks/useHeroPromotionConfig';
+import { base44 } from '@/api/base44Client';
+
+const DEFAULT_SLIDE_INTERVAL = 7000;
+const MIN_SLIDE_INTERVAL = 3000;
 
 export default function Hero3D() {
     const { t } = useLanguage();
     const { config } = useHeroPromotionConfig();
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    const { data: allBanners = [], isLoading: loadingBanners } = useQuery({
+        queryKey: ['promotion-banners', 'hero'],
+        queryFn: () => base44.entities.PromotionBanner.list('display_order'),
+    });
+
+    const firstDurationMs = Math.max(3000, (config.firstSlideDuration ?? 10) * 1000);
+    const normalDurationMs = Math.max(3000, (config.normalSlideDuration ?? 6) * 1000);
 
     const featureCards = config.featureCards || [];
 
-    const features = [
+    const features = useMemo(() => ([
         { icon: Sparkles, text: config.feature1Text, subtext: config.feature1Subtext },
         { icon: Clock, text: config.feature2Text, subtext: config.feature2Subtext },
-        { icon: Truck, text: config.feature3Text, subtext: config.feature3Subtext }
-    ];
+        { icon: Truck, text: config.feature3Text, subtext: config.feature3Subtext },
+    ]), [config.feature1Subtext, config.feature1Text, config.feature2Subtext, config.feature2Text, config.feature3Subtext, config.feature3Text]);
 
-    const cardStyles = [
-        {
-            wrapperClass: 'bg-gradient-to-br from-white to-purple-50 rounded-3xl p-4 shadow-2xl hover:shadow-purple-500/30 transition-all duration-300 border-2 border-purple-100',
-            hoverRotate: 2,
-            imageHeight: 'h-48',
-            subtitleGradient: 'from-purple-600 to-pink-600',
-        },
-        {
-            wrapperClass: 'bg-gradient-to-br from-white to-orange-50 rounded-3xl p-4 shadow-2xl hover:shadow-orange-500/30 transition-all duration-300 border-2 border-orange-100',
-            hoverRotate: -2,
-            imageHeight: 'h-32',
-            subtitleGradient: 'from-orange-600 to-red-600',
-        },
-        {
-            wrapperClass: 'bg-gradient-to-br from-white to-pink-50 rounded-3xl p-4 shadow-2xl hover:shadow-pink-500/30 transition-all duration-300 border-2 border-pink-100',
-            hoverRotate: -2,
-            imageHeight: 'h-32',
-            subtitleGradient: 'from-pink-600 to-purple-600',
-        },
-        {
-            wrapperClass: 'bg-gradient-to-br from-white to-green-50 rounded-3xl p-4 shadow-2xl hover:shadow-green-500/30 transition-all duration-300 border-2 border-green-100',
-            hoverRotate: 2,
-            imageHeight: 'h-48',
-            subtitleGradient: 'from-green-600 to-emerald-600',
-        },
-    ];
+    const activeBanners = useMemo(() => {
+        const now = new Date();
+        return allBanners
+            .filter((banner) => {
+                if (banner.is_active === false) return false;
+                if (banner.start_date && new Date(banner.start_date) > now) return false;
+                if (banner.end_date && new Date(banner.end_date) < now) return false;
+                return true;
+            })
+            .sort((a, b) => {
+                const orderA = Number(a.display_order ?? 0);
+                const orderB = Number(b.display_order ?? 0);
+                if (orderA === orderB) {
+                    return new Date(a.created_date || 0) - new Date(b.created_date || 0);
+                }
+                return orderA - orderB;
+            });
+    }, [allBanners]);
+
+    const slides = useMemo(() => {
+        if (activeBanners.length > 0) {
+            return activeBanners.map((banner, index) => {
+                const displayDurationSeconds = Number(banner.display_duration);
+                const durationMs = Number.isFinite(displayDurationSeconds) && displayDurationSeconds > 0
+                    ? displayDurationSeconds * 1000
+                    : normalDurationMs;
+
+                return {
+                    id: banner.id,
+                    title: banner.title || config.title,
+                    highlightText: config.highlightText,
+                    description: banner.description || config.description,
+                    image: banner.image_url || config.backgroundImage,
+                    linkUrl: banner.link_url || createPageUrl('Products'),
+                    durationMs,
+                };
+            });
+        }
+
+        return [{
+            id: 'default-hero-slide',
+            title: config.title,
+            highlightText: config.highlightText,
+            description: config.description,
+            image: config.backgroundImage,
+            linkUrl: createPageUrl('Products'),
+            durationMs: normalDurationMs,
+        }];
+    }, [activeBanners, config.backgroundImage, config.description, config.highlightText, config.title, normalDurationMs]);
+
+    useEffect(() => {
+        if (slides.length <= 1) return undefined;
+
+        const currentSlide = slides[currentIndex];
+        const duration = currentIndex === 0
+            ? firstDurationMs
+            : Math.max(MIN_SLIDE_INTERVAL, currentSlide?.durationMs ?? normalDurationMs);
+
+        const timer = window.setTimeout(() => {
+            setCurrentIndex((prev) => (prev + 1) % slides.length);
+        }, duration);
+
+        return () => window.clearTimeout(timer);
+    }, [slides, currentIndex, firstDurationMs, normalDurationMs]);
+
+    useEffect(() => {
+        setCurrentIndex(0);
+    }, [slides.length]);
+
+    const goToSlide = (index) => {
+        setCurrentIndex((index + slides.length) % slides.length);
+    };
+
+    const handlePrev = () => goToSlide(currentIndex - 1);
+    const handleNext = () => goToSlide(currentIndex + 1);
+
+    const currentSlide = slides[currentIndex];
 
     const renderFeatureCard = (card, index) => {
-        const style = cardStyles[index] || cardStyles[0];
         const hasImage = Boolean(card?.image);
-
         return (
             <motion.div
                 key={card?.id || index}
-                className={style.wrapperClass}
-                whileHover={{ scale: 1.05, rotate: style.hoverRotate }}
+                className="bg-white/85 backdrop-blur-sm border border-white/70 rounded-3xl shadow-lg overflow-hidden"
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: 'spring', stiffness: 200, damping: 20 }}
             >
-                <div className="relative overflow-hidden rounded-2xl mb-3 group">
+                <div className="relative overflow-hidden">
                     {hasImage ? (
                         <img
                             src={card.image}
                             alt={card.title || 'Homepage highlight'}
-                            className={`w-full ${style.imageHeight} object-cover transition-transform duration-300 group-hover:scale-110`}
+                            className="w-full h-40 object-cover"
                         />
                     ) : (
-                        <div className={`w-full ${style.imageHeight} flex items-center justify-center bg-purple-100/40 text-sm text-gray-500`}>Image coming soon</div>
+                        <div className="w-full h-40 flex items-center justify-center text-sm text-gray-500 bg-purple-100/40">Image coming soon</div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                 </div>
-                <p className="font-bold text-gray-900 text-lg">{card.title || 'Featured Category'}</p>
-                <p className={`text-sm font-semibold bg-gradient-to-r ${style.subtitleGradient} bg-clip-text text-transparent`}>
-                    {card.subtitle || 'Update this card in admin panel'}
-                </p>
+                <div className="p-4">
+                    <p className="font-bold text-gray-900 text-lg">{card.title || 'Featured Category'}</p>
+                    <p className="text-sm font-semibold text-purple-600">{card.subtitle || 'Update this card in admin panel'}</p>
+                </div>
             </motion.div>
         );
     };
 
-    const firstColumnCards = featureCards.slice(0, 2);
-    const secondColumnCards = featureCards.slice(2, 4);
-    
     return (
-        <section className="relative min-h-[400px] sm:min-h-[500px] lg:min-h-[650px] bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 overflow-hidden">
-            {/* Animated Background Elements */}
+        <section className="relative bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 overflow-hidden">
             <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute top-20 -left-20 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob" />
                 <div className="absolute top-40 -right-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000" />
                 <div className="absolute -bottom-20 left-1/2 w-72 h-72 bg-orange-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000" />
             </div>
-            
-            {/* Background Image with Overlay */}
-            {config.backgroundImage && (
-                <div className="absolute inset-0">
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/98 via-white/85 to-white/70 z-10" />
-                    <img
-                        src={config.backgroundImage}
-                        alt="Fresh groceries"
-                        className="w-full h-full object-cover opacity-40"
-                    />
-                </div>
-            )}
 
-            <div className="relative z-20 max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-8 sm:py-12 lg:py-28">
-                <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-                    {/* Left Content */}
-                    <div>
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6 }}
-                        >
-                            {/* Promotion Badge */}
-                            <div className="inline-block mb-3 sm:mb-4 lg:mb-6 px-3 sm:px-4 lg:px-5 py-1.5 sm:py-2 lg:py-2.5 bg-gradient-to-r from-purple-100 via-pink-100 to-orange-100 rounded-full border-2 border-white shadow-lg">
-                                <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent text-xs sm:text-sm font-bold">
-                                    {config.badge}
-                                </span>
-                            </div>
-
-                            {/* Main Title */}
-                            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl font-black text-gray-900 mb-3 sm:mb-4 lg:mb-6 leading-tight">
-                                {config.title}<br />
-                                <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent animate-gradient">
-                                    {config.highlightText}
-                                </span>
-                            </h1>
-
-                            {/* Description */}
-                            <p className="text-sm sm:text-base lg:text-xl text-gray-700 mb-6 sm:mb-8 lg:mb-10 leading-relaxed font-medium">
-                                {config.description}
-                            </p>
-                            
-                            {/* CTA Button */}
-                            <div className="flex flex-wrap gap-3 sm:gap-4">
-                                <Link to={createPageUrl('Products')}>
-                                    <Button size="lg" className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 hover:from-purple-700 hover:via-pink-700 hover:to-red-700 text-white px-6 py-4 sm:px-8 sm:py-5 lg:px-10 lg:py-7 text-sm sm:text-base lg:text-lg rounded-xl sm:rounded-2xl shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105 font-bold">
-                                        {t('shopNow')} →
-                                    </Button>
-                                </Link>
-                            </div>
-
-                            {/* Features */}
-                            <div className="mt-6 sm:mt-10 lg:mt-14 grid grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-                                {features.map((feature, index) => (
-                                    <motion.div 
-                                        key={index}
-                                        className="text-center p-2 sm:p-3 lg:p-4 bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                                        whileHover={{ y: -5 }}
+            <div className="relative z-20 max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-10 sm:py-14 lg:py-20 space-y-10">
+                <div className="grid lg:grid-cols-[2fr,1fr] gap-6 lg:gap-10 items-stretch">
+                    <div className="relative">
+                        <div className="relative h-[380px] sm:h-[440px] lg:h-[520px] rounded-3xl overflow-hidden shadow-2xl border border-white/40">
+                            {loadingBanners && !currentSlide ? (
+                                <div className="absolute inset-0 flex items-center justify-center bg-white/60">
+                                    <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+                                </div>
+                            ) : null}
+                            <AnimatePresence mode="wait">
+                                {currentSlide ? (
+                                    <motion.div
+                                        key={currentSlide.id}
+                                        initial={{ opacity: 0, scale: 1.02 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.98 }}
+                                        transition={{ duration: 0.6, ease: 'easeOut' }}
+                                        className="absolute inset-0"
                                     >
-                                        <feature.icon className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-purple-600" />
-                                        <div className="text-base sm:text-lg lg:text-2xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                                            {feature.text}
-                                        </div>
-                                        <div className="text-[9px] sm:text-[10px] lg:text-xs text-gray-700 mt-1 sm:mt-2 font-semibold leading-tight">
-                                            {feature.subtext}
+                                        <img
+                                            src={currentSlide.image}
+                                            alt={currentSlide.title}
+                                            className="absolute inset-0 w-full h-full object-cover"
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/30 to-black/20" />
+                                        <div className="relative h-full flex flex-col justify-between p-6 sm:p-10 lg:p-14">
+                                            <div className="space-y-4 sm:space-y-6">
+                                                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white text-xs sm:text-sm font-semibold uppercase tracking-wide">
+                                                    <span className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 animate-pulse" />
+                                                    {config.badge}
+                                                </div>
+                                                <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-tight">
+                                                    {currentSlide.title}
+                                                    <br />
+                                                    <span className="bg-gradient-to-r from-purple-300 via-pink-300 to-orange-200 bg-clip-text text-transparent">
+                                                        {currentSlide.highlightText}
+                                                    </span>
+                                                </h1>
+                                                <p className="text-sm sm:text-lg lg:text-xl text-white/85 max-w-2xl">
+                                                    {currentSlide.description}
+                                                </p>
+                                            </div>
+                                            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+                                                {(() => {
+                                                    const ctaLabel = t('shopNow');
+                                                    const url = currentSlide.linkUrl || createPageUrl('Products');
+                                                    const isExternal = /^https?:\/\//i.test(url);
+
+                                                    const button = (
+                                                        <Button
+                                                            size="lg"
+                                                            className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 hover:from-purple-700 hover:via-pink-700 hover:to-red-700 text-white px-6 sm:px-8 lg:px-10 py-4 sm:py-5 rounded-2xl font-bold shadow-2xl hover:shadow-purple-500/50 transition-all duration-300"
+                                                        >
+                                                            {ctaLabel} →
+                                                        </Button>
+                                                    );
+
+                                                    if (isExternal) {
+                                                        return (
+                                                            <a href={url} target="_blank" rel="noopener noreferrer">
+                                                                {button}
+                                                            </a>
+                                                        );
+                                                    }
+
+                                                    return (
+                                                        <Link to={url}>
+                                                            {button}
+                                                        </Link>
+                                                    );
+                                                })()}
+                                                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/15 text-white text-sm">
+                                                    <Sparkles className="w-4 h-4" />
+                                                    {config.feature1Text}
+                                                </div>
+                                            </div>
                                         </div>
                                     </motion.div>
-                                ))}
-                            </div>
-                        </motion.div>
+                                ) : null}
+                            </AnimatePresence>
+
+                            {slides.length > 1 ? (
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={handlePrev}
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/75 hover:bg-white shadow-lg flex items-center justify-center transition-all hover:scale-110"
+                                        aria-label="Previous promotion"
+                                    >
+                                        <ChevronLeft className="w-6 h-6 text-gray-800" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleNext}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/75 hover:bg-white shadow-lg flex items-center justify-center transition-all hover:scale-110"
+                                        aria-label="Next promotion"
+                                    >
+                                        <ChevronRight className="w-6 h-6 text-gray-800" />
+                                    </button>
+                                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2">
+                                        {slides.map((slide, index) => (
+                                            <button
+                                                key={slide.id}
+                                                type="button"
+                                                onClick={() => goToSlide(index)}
+                                                className={`h-2 rounded-full transition-all ${index === currentIndex ? 'w-8 bg-white' : 'w-2 bg-white/50 hover:bg-white/75'}`}
+                                                aria-label={`Go to slide ${index + 1}`}
+                                            />
+                                        ))}
+                                    </div>
+                                </>
+                            ) : null}
+                        </div>
                     </div>
 
-                    {/* Right Content - Product Images */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.6, delay: 0.2 }}
-                        className="hidden lg:block"
-                    >
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-4">
-                                {firstColumnCards.map((card, index) => renderFeatureCard(card, index))}
-                            </div>
-                            <div className="space-y-4 pt-8">
-                                {secondColumnCards.map((card, index) => renderFeatureCard(card, index + firstColumnCards.length))}
-                            </div>
+                    {featureCards.length > 0 ? (
+                        <div className="hidden lg:flex flex-col gap-4">
+                            {featureCards.slice(0, 3).map((card, index) => renderFeatureCard(card, index))}
                         </div>
-                    </motion.div>
+                    ) : null}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                    {features.map((feature, index) => (
+                        <motion.div
+                            key={index}
+                            className="flex items-center gap-3 px-4 py-5 bg-white/80 backdrop-blur-sm border border-white rounded-2xl shadow-lg"
+                            whileHover={{ y: -4 }}
+                        >
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 flex items-center justify-center text-purple-600">
+                                <feature.icon className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <p className="text-base font-bold text-gray-900">{feature.text}</p>
+                                <p className="text-xs font-medium text-gray-600">{feature.subtext}</p>
+                            </div>
+                        </motion.div>
+                    ))}
                 </div>
             </div>
         </section>

@@ -637,6 +637,7 @@ const initializeSampleData = () => {
       link_url: '/Products?category=cat_1',
       is_active: true,
       display_order: 1,
+      display_duration: 7,
       created_date: new Date().toISOString()
     },
     {
@@ -647,6 +648,7 @@ const initializeSampleData = () => {
       link_url: '/Products',
       is_active: true,
       display_order: 2,
+      display_duration: 6,
       created_date: new Date().toISOString()
     },
     {
@@ -657,6 +659,7 @@ const initializeSampleData = () => {
       link_url: '/Products?featured=true',
       is_active: true,
       display_order: 3,
+      display_duration: 8,
       created_date: new Date().toISOString()
     }
   ];
