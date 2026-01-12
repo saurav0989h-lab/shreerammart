@@ -44,7 +44,6 @@ export default function FloatingCart() {
           </Button>
         </Link>
 
-
         {/* Item Added Notification */}
         <AnimatePresence>
           {showNotification && (

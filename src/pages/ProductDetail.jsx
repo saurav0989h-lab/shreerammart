@@ -224,7 +224,7 @@ export default function ProductDetail() {
                   onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })}
                   className="text-sm text-gray-600 hover:text-red-600"
                 >
-                  ({reviews.length} {language === 'np' ? 'समीक्षा' : 'reviews'})
+                  ({reviews.length} {t('reviews')})
                 </button>
               </div>
 
@@ -311,7 +311,7 @@ export default function ProductDetail() {
                       variant="outline"
                       className="px-6 h-12 border-red-200 hover:bg-red-50"
                     >
-                      {language === 'np' ? 'मात्रा' : 'Custom Amount'}
+                      {t('customAmount')}
                     </Button>
                   </div>
                 ) : isWeightBased && showWeightInput ? (
@@ -321,7 +321,7 @@ export default function ProductDetail() {
                         type="number"
                         step="any"
                         min="0.1"
-                        placeholder={language === 'np' ? 'मात्रा प्रविष्ट गर्नुहोस्' : 'Enter amount'}
+                        placeholder={t('enterAmount')}
                         value={customWeight}
                         onChange={(e) => setCustomWeight(e.target.value)}
                         className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
@@ -333,14 +333,14 @@ export default function ProductDetail() {
                       >
                         {isLiterBased ? (
                           <>
-                            <option value="liter">{language === 'np' ? 'लिटर' : 'Liter'}</option>
-                            <option value="halfliter">{language === 'np' ? 'आधा लिटर' : 'Half Liter'}</option>
+                            <option value="liter">{t('liter')}</option>
+                            <option value="halfliter">{t('halfLiter')}</option>
                             <option value="ml">ML</option>
                           </>
                         ) : (
                           <>
                             <option value="kg">Kilogram</option>
-                            <option value="gram">{language === 'np' ? 'ग्राम' : 'Gram'}</option>
+                            <option value="gram">{t('gram')}</option>
                           </>
                         )}
                       </select>
@@ -351,7 +351,7 @@ export default function ProductDetail() {
                         className="flex-1 bg-red-600 hover:bg-red-700 h-12"
                       >
                         <ShoppingCart className="w-5 h-5 mr-2" />
-                        {language === 'np' ? 'कार्टमा थप्नुहोस्' : 'Add to Cart'}
+                        {t('addToCart')}
                       </Button>
                       <Button 
                         onClick={() => {
@@ -362,7 +362,7 @@ export default function ProductDetail() {
                         variant="outline"
                         className="px-6 h-12"
                       >
-                        {language === 'np' ? 'रद्द' : 'Cancel'}
+                        {t('cancel')}
                       </Button>
                     </div>
                   </div>
@@ -407,18 +407,18 @@ export default function ProductDetail() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                {language === 'np' ? 'ग्राहक समीक्षा' : 'Customer Reviews'}
+                {t('customerReviews')}
               </h2>
               <div className="flex items-center gap-3">
                 <StarRating rating={avgRating} size="lg" showNumber />
                 <span className="text-gray-600">
-                  {language === 'np' ? 'आधारित' : 'Based on'} {reviews.length} {language === 'np' ? 'समीक्षा' : 'reviews'}
+                  {t('basedOn')} {reviews.length} {t('reviews')}
                 </span>
               </div>
             </div>
             <Button onClick={handleWriteReview} className="bg-red-600 hover:bg-red-700">
               <MessageSquare className="w-4 h-4 mr-2" />
-              {language === 'np' ? 'समीक्षा लेख्नुहोस्' : 'Write Review'}
+              {t('writeReview')}
             </Button>
           </div>
 
@@ -430,7 +430,7 @@ export default function ProductDetail() {
         <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[85vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader className="mb-2">
             <DialogTitle className="text-lg sm:text-xl">
-              {language === 'np' ? 'समीक्षा लेख्नुहोस्' : 'Write a Review'}
+              {t('writeReview')}
             </DialogTitle>
           </DialogHeader>
           <div className="overflow-y-auto max-h-[calc(85vh-80px)]">

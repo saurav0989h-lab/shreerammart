@@ -33,7 +33,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $displayOrder = isset($_POST['display_order']) ? (int) $_POST['display_order'] : 0;
         $slideTimer = isset($_POST['slide_timer']) ? (int) $_POST['slide_timer'] : 5000;
         $isActive = isset($_POST['is_active']) ? 1 : 0;
-        <?php
-        header('Location: dashboard.php');
-        exit;
+        
         $errorList = [];

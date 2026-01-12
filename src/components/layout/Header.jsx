@@ -21,13 +21,15 @@ export default function Header({ user, onLogout }) {
   const { language, toggleLanguage, t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
+  const nextLanguage = language === 'en' ? 'np' : (language === 'np' ? 'hi' : 'en');
+  const nextLanguageLabel = { en: 'English', np: 'नेपाली', hi: 'हिन्दी' }[nextLanguage];
 
   const navLinks = [
     { name: t('home'), path: 'Home', icon: Sparkles },
     { name: t('products'), path: 'Products', icon: Package },
-    { name: 'Deals', path: 'Products', icon: Percent, query: '?sale=true' },
+    { name: t('deals') || 'Deals', path: 'Products', icon: Percent, query: '?sale=true' },
     { name: t('trackOrder'), path: 'OrderTracking', icon: MapPin },
-    { name: 'My Lists', path: 'MyShoppingLists', icon: Heart },
+    { name: t('myLists') || 'My Lists', path: 'MyShoppingLists', icon: Heart },
   ];
 
   const isActive = (path) => {
@@ -71,7 +73,7 @@ export default function Header({ user, onLogout }) {
                 className="flex items-center gap-1 hover:bg-white/20 px-3 py-1 rounded-full transition-all"
               >
                 <Globe className="w-3.5 h-3.5" />
-                {language === 'en' ? 'नेपाली' : 'English'}
+                {nextLanguageLabel}
               </button>
               {user?.role === 'admin' && (
                 <Link to={createPageUrl('AdminDashboard')} className="underline hover:bg-white/20 px-3 py-1 rounded-full transition-all">
@@ -101,7 +103,7 @@ export default function Header({ user, onLogout }) {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-purple-600 transition-colors" />
                 <Input
                   type="text"
-                  placeholder="Search for products..."
+                  placeholder={t('searchProducts')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-11 pr-4 py-5 rounded-full border-2 border-gray-200 focus:border-purple-600 focus:ring-2 focus:ring-purple-100 transition-all"
@@ -208,7 +210,7 @@ export default function Header({ user, onLogout }) {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <Input
                           type="text"
-                          placeholder="Search products..."
+                          placeholder={t('searchProducts')}
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           className="pl-10 rounded-full"
@@ -294,7 +296,7 @@ export default function Header({ user, onLogout }) {
                         className="flex items-center gap-2 text-sm text-purple-600 font-medium hover:bg-purple-50 w-full py-2 px-3 rounded-lg transition-all"
                       >
                         <Globe className="w-4 h-4" />
-                        {language === 'en' ? 'Switch to नेपाली' : 'Switch to English'}
+                        {`Switch to ${nextLanguageLabel}`}
                       </button>
                       <div className="flex items-center gap-2 text-sm text-gray-600 px-3">
                         <Phone className="w-4 h-4" /> +977-9844988588
@@ -316,7 +318,7 @@ export default function Header({ user, onLogout }) {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
                   type="text"
-                  placeholder="Search for products..."
+                  placeholder={t('searchProducts')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 rounded-full border-2 focus:border-purple-600"

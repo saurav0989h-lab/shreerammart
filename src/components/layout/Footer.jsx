@@ -95,47 +95,59 @@ export default function Footer() {
               Your trusted local marketplace for groceries, dairy, bakery items,
               and furniture. Supporting local businesses in Dang Valley.
             </p>
-            <div className="mt-6 space-y-4">
-              <div>
-                <div className="flex items-center gap-2 text-emerald-400 text-xs font-semibold uppercase tracking-wide">
-                  <Wallet className="w-4 h-4" />
-                  <span>Nepal</span>
-                </div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {nepalPaymentMethods.map(method => (
-                    <span key={method} className="px-3 py-1 rounded-full bg-white/5 text-xs md:text-sm text-gray-200 border border-white/10">
-                      {method}
-                    </span>
-                  ))}
-                </div>
+            
+            {/* Payment Methods Box */}
+            <div className="mt-6 bg-gradient-to-br from-gray-800/50 to-gray-800/30 rounded-xl p-5 border border-gray-700/50 backdrop-blur-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <CreditCard className="w-5 h-5 text-purple-400" />
+                <h4 className="font-bold text-white text-base">Payment We Accept</h4>
               </div>
-              <div>
-                <div className="flex items-center gap-2 text-indigo-300 text-xs font-semibold uppercase tracking-wide">
-                  <Smartphone className="w-4 h-4" />
-                  <span>India</span>
+              
+              <div className="space-y-4">
+                <div>
+                  <div className="flex items-center gap-2 text-emerald-400 text-xs font-semibold uppercase tracking-wide mb-2">
+                    <Wallet className="w-4 h-4" />
+                    <span>Nepal</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {nepalPaymentMethods.map(method => (
+                      <span key={method} className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-500/20 to-green-500/20 text-xs text-gray-200 border border-emerald-500/30 hover:border-emerald-400/50 transition-colors">
+                        {method}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {indiaPaymentMethods.map(method => (
-                    <span key={method} className="px-3 py-1 rounded-full bg-white/5 text-xs md:text-sm text-gray-200 border border-white/10">
-                      {method}
-                    </span>
-                  ))}
+                
+                <div>
+                  <div className="flex items-center gap-2 text-indigo-300 text-xs font-semibold uppercase tracking-wide mb-2">
+                    <Smartphone className="w-4 h-4" />
+                    <span>India</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {indiaPaymentMethods.map(method => (
+                      <span key={method} className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-indigo-500/20 to-blue-500/20 text-xs text-gray-200 border border-indigo-500/30 hover:border-indigo-400/50 transition-colors">
+                        {method}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-              <div>
-                <div className="flex items-center gap-2 text-blue-300 text-xs font-semibold uppercase tracking-wide">
-                  <Globe className="w-4 h-4" />
-                  <span>International</span>
-                </div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {internationalPaymentMethods.map(method => (
-                    <span key={method} className="px-3 py-1 rounded-full bg-white/5 text-xs md:text-sm text-gray-200 border border-white/10">
-                      {method}
-                    </span>
-                  ))}
+                
+                <div>
+                  <div className="flex items-center gap-2 text-blue-300 text-xs font-semibold uppercase tracking-wide mb-2">
+                    <Globe className="w-4 h-4" />
+                    <span>International</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {internationalPaymentMethods.map(method => (
+                      <span key={method} className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-xs text-gray-200 border border-blue-500/30 hover:border-blue-400/50 transition-colors">
+                        {method}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
+            
             <div className="flex gap-3 mt-6">
               <a href="#" className="w-10 h-10 rounded-full bg-white/10 hover:bg-purple-600 flex items-center justify-center transition-all hover:scale-110">
                 <Facebook className="w-5 h-5" />
@@ -177,7 +189,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Clock className="w-5 h-5 text-purple-400 flex-shrink-0" />
-                <span className="text-gray-300">7:00 AM - 8:00 PM</span>
+                <span className="text-gray-300">6:00 AM - 10:00 PM</span>
               </li>
             </ul>
           </div>
@@ -244,7 +256,7 @@ export default function Footer() {
         )}
 
         <div className="border-t border-gray-800 mt-10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
-          <p>© 2025 ShreeramMart. {t('allRightsReserved')}</p>
+          <p>© 2026 ShreeramMart. {t('allRightsReserved')}</p>
           <p className="text-gray-500">{t('madeWithLove')}</p>
         </div>
       </div>
