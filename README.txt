@@ -1,4 +1,4 @@
-Homepage Promotional Slider System
+[vite]: Rollup failed to resolve import "@tanstack/react-query"Homepage Promotional Slider System
 =================================
 
 Requirements
