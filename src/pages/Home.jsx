@@ -1,6 +1,6 @@
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import Hero3D from '@/components/home/Hero3D';
+import HeroSlider from '@/components/home/HeroSlider';
 import CategoryGrid from '@/components/home/CategoryGrid';
 import FeaturedProducts from '@/components/home/FeaturedProducts';
 import PromoSection from '@/components/home/PromoSection';
@@ -27,7 +27,7 @@ export default function Home() {
 
   return (
     <div className="bg-gray-50">
-      <Hero3D />
+      <HeroSlider />
 
       {/* List Upload Section */}
       <section className="py-12 bg-white border-y border-gray-200">

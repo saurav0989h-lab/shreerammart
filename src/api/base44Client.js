@@ -298,9 +298,12 @@ const initializeSampleData = () => {
   const productKey = 'base44_entity_Product';
   const bannerKey = 'base44_entity_PromotionBanner';
   const galleryKey = 'base44_entity_GalleryImage';
-  
-  // Check if already initialized
-  if (localStorage.getItem(categoryKey) && localStorage.getItem(productKey)) {
+
+  // Check if fully initialized
+  if (localStorage.getItem(categoryKey) &&
+    localStorage.getItem(productKey) &&
+    localStorage.getItem(bannerKey) &&
+    localStorage.getItem(galleryKey)) {
     return;
   }
 
@@ -710,12 +713,12 @@ const initializeSampleData = () => {
     }
   ];
 
-  // Save to localStorage
-  localStorage.setItem(categoryKey, JSON.stringify(categories));
-  localStorage.setItem(productKey, JSON.stringify(products));
-  localStorage.setItem(bannerKey, JSON.stringify(banners));
-  localStorage.setItem(galleryKey, JSON.stringify(galleryImages));
-  
+  // Save to localStorage (only if missing)
+  if (!localStorage.getItem(categoryKey)) localStorage.setItem(categoryKey, JSON.stringify(categories));
+  if (!localStorage.getItem(productKey)) localStorage.setItem(productKey, JSON.stringify(products));
+  if (!localStorage.getItem(bannerKey)) localStorage.setItem(bannerKey, JSON.stringify(banners));
+  if (!localStorage.getItem(galleryKey)) localStorage.setItem(galleryKey, JSON.stringify(galleryImages));
+
   console.log('✅ Sample data initialized: 5 categories, 15 products, 3 promotion banners, and 6 gallery images added');
 };
 

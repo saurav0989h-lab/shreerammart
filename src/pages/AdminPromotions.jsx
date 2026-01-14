@@ -12,7 +12,7 @@ import { Sparkles, Truck, Save, Eye, Megaphone, Image as ImageIcon, Plus, Upload
 import { toast } from 'sonner';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import { getDefaultFeatureCards, mergeHeroPromotionConfig, parseHeroPromotionSetting } from '@/lib/heroPromotionConfig';
-import Hero3D from '@/components/home/Hero3D';
+import HeroSlider from '@/components/home/HeroSlider';
 
 export default function AdminPromotions() {
   const queryClient = useQueryClient();
@@ -70,7 +70,10 @@ export default function AdminPromotions() {
   }, [currentConfig]);
   const [bannerFormData, setBannerFormData] = useState({
     title: '',
+    subtitle: '',
+    highlight_text: '',
     description: '',
+    button_text: 'Shop Now',
     image_url: '',
     link_url: '',
     is_active: true,
@@ -105,13 +108,18 @@ export default function AdminPromotions() {
   });
 
   const createBannerMutation = useMutation({
-    mutationFn: (data) => base44.entities.PromotionBanner.create(data),
-    onSuccess: () => {
+    mutationFn: (data) => {
+      console.log('createBannerMutation called with data:', data);
+      return base44.entities.PromotionBanner.create(data);
+    },
+    onSuccess: (result) => {
+      console.log('Banner created successfully:', result);
       queryClient.invalidateQueries({ queryKey: ['promotion-banners'] });
       toast.success('Banner created successfully!');
       closeDialog();
     },
     onError: (error) => {
+      console.error('Failed to create banner:', error);
       toast.error('Failed to create banner: ' + error.message);
     }
   });
@@ -266,24 +274,30 @@ export default function AdminPromotions() {
       setEditingBanner(banner);
       setBannerFormData({
         title: banner.title || '',
+        subtitle: banner.subtitle || '',
+        highlight_text: banner.highlight_text || '',
         description: banner.description || '',
+        button_text: banner.button_text || 'Shop Now',
         image_url: banner.image_url || '',
         link_url: banner.link_url || '',
         is_active: banner.is_active !== false,
         display_order: banner.display_order || 0,
         display_duration: banner.display_duration || 7,
-        start_date: banner.start_date || '',
-        end_date: banner.end_date || ''
+        start_date: banner.start_date ? new Date(banner.start_date).toISOString().slice(0, 16) : '',
+        end_date: banner.end_date ? new Date(banner.end_date).toISOString().slice(0, 16) : ''
       });
     } else {
       setEditingBanner(null);
       setBannerFormData({
         title: '',
+        subtitle: '',
+        highlight_text: '',
         description: '',
+        button_text: 'Shop Now',
         image_url: '',
         link_url: '',
         is_active: true,
-        display_order: banners.length,
+        display_order: banners.length + 1,
         display_duration: 7,
         start_date: '',
         end_date: ''
@@ -307,7 +321,12 @@ export default function AdminPromotions() {
 
     setUploadingImage(true);
     try {
-      await uploadToGalleryMutation.mutateAsync(file);
+      const newImage = await uploadToGalleryMutation.mutateAsync(file);
+      // Auto-select the uploaded image
+      if (newImage && newImage.image_url) {
+        setBannerFormData(prev => ({ ...prev, image_url: newImage.image_url }));
+        toast.success("Image uploaded and selected!");
+      }
     } catch {
       toast.error('Failed to upload image');
     } finally {
@@ -328,23 +347,33 @@ export default function AdminPromotions() {
 
   const handleBannerSubmit = (e) => {
     e.preventDefault();
-    
+
+    console.log('Banner form submitted:', bannerFormData);
+
     if (!bannerFormData.title) {
       toast.error('Banner title is required!');
-      return;
-    }
-    
-    if (!bannerFormData.image_url) {
-      toast.error('Please select or upload an image!');
+      console.error('Validation failed: title missing');
       return;
     }
 
+    if (!bannerFormData.image_url) {
+      toast.error('Please select or upload an image!');
+      console.error('Validation failed: image_url missing');
+      return;
+    }
+
+    console.log('Validation passed, submitting banner...');
+    console.log('Editing banner:', editingBanner);
+    console.log('Banner data to submit:', bannerFormData);
+
     if (editingBanner) {
+      console.log('Updating existing banner:', editingBanner.id);
       updateBannerMutation.mutate({
         id: editingBanner.id,
         data: bannerFormData
       });
     } else {
+      console.log('Creating new banner');
       createBannerMutation.mutate(bannerFormData);
     }
   };
@@ -373,7 +402,7 @@ export default function AdminPromotions() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <AdminSidebar />
-      
+
       <div className="flex-1 p-6 lg:p-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
@@ -399,12 +428,69 @@ export default function AdminPromotions() {
                 Homepage Slider Preview
               </CardTitle>
               <CardDescription className="text-purple-700">
-                Live view of the hero slider using the current promotion settings and banner lineup
+                Live preview of your homepage slider with active banners
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="rounded-3xl border border-purple-100 overflow-hidden shadow">
-                <Hero3D />
+              <div className="rounded-3xl border border-purple-100 overflow-hidden shadow-lg">
+                <HeroSlider />
+              </div>
+              <div className="mt-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                <div className="flex items-start gap-3">
+                  <Sparkles className="w-5 h-5 text-purple-600 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-purple-900 mb-1">Quick Edit Active Slides</p>
+                    <p className="text-xs text-purple-700 mb-3">Click on any banner below to edit its content</p>
+                    {(() => {
+                      const now = new Date();
+                      const activeSlides = banners.filter(banner => {
+                        if (!banner.is_active) return false;
+                        if (banner.start_date && new Date(banner.start_date) > now) return false;
+                        if (banner.end_date && new Date(banner.end_date) < now) return false;
+                        return true;
+                      }).sort((a, b) => {
+                        const orderA = Number(a.display_order ?? 0);
+                        const orderB = Number(b.display_order ?? 0);
+                        return orderA - orderB;
+                      });
+
+                      if (activeSlides.length === 0) {
+                        return (
+                          <div className="text-center py-4 bg-white rounded-lg border border-purple-200">
+                            <p className="text-sm text-gray-600">No active slides. Create a banner below to get started.</p>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                          {activeSlides.map((slide, index) => (
+                            <button
+                              key={slide.id}
+                              onClick={() => openDialog(slide)}
+                              className="group relative aspect-video rounded-lg overflow-hidden border-2 border-purple-200 hover:border-purple-500 transition-all hover:shadow-lg"
+                            >
+                              <img
+                                src={slide.image_url}
+                                alt={slide.title}
+                                className="w-full h-full object-cover"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-2">
+                                <p className="text-white text-xs font-semibold truncate">Slide {index + 1}</p>
+                                <p className="text-white/80 text-[10px] truncate">{slide.title}</p>
+                              </div>
+                              <div className="absolute inset-0 bg-purple-600/0 group-hover:bg-purple-600/20 transition-all flex items-center justify-center">
+                                <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-full p-2 shadow-lg">
+                                  <Edit className="w-4 h-4 text-purple-600" />
+                                </div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -441,14 +527,14 @@ export default function AdminPromotions() {
                 return (
                   <div className="space-y-3">
                     {runningBanners.map((banner) => {
-                      const timeRemaining = banner.end_date 
+                      const timeRemaining = banner.end_date
                         ? Math.ceil((new Date(banner.end_date) - now) / (1000 * 60 * 60 * 24))
                         : null;
 
                       return (
                         <div key={banner.id} className="bg-white p-4 rounded-lg border border-green-200 flex items-center gap-4">
-                          <img 
-                            src={banner.image_url} 
+                          <img
+                            src={banner.image_url}
                             alt={banner.title}
                             className="w-24 h-16 object-cover rounded"
                           />
@@ -459,7 +545,7 @@ export default function AdminPromotions() {
                             )}
                             {timeRemaining !== null && (
                               <p className="text-xs text-green-700 mt-1">
-                                {timeRemaining > 0 
+                                {timeRemaining > 0
                                   ? `Ends in ${timeRemaining} day${timeRemaining > 1 ? 's' : ''} (${new Date(banner.end_date).toLocaleDateString()})`
                                   : 'Ends today'}
                               </p>
@@ -532,9 +618,8 @@ export default function AdminPromotions() {
                     return (
                       <div
                         key={banner.id}
-                        className={`relative group rounded-lg overflow-hidden border-2 bg-white hover:shadow-lg transition-all ${
-                          isCurrentlyActive ? 'border-green-500' : 'border-gray-200'
-                        }`}
+                        className={`relative group rounded-lg overflow-hidden border-2 bg-white hover:shadow-lg transition-all ${isCurrentlyActive ? 'border-green-500' : 'border-gray-200'
+                          }`}
                       >
                         <div className="relative aspect-video">
                           <img
@@ -884,7 +969,7 @@ export default function AdminPromotions() {
                     <h4 className="font-semibold text-sm text-gray-900">Select from Gallery</h4>
                     <span className="text-xs text-gray-500">{galleryImages.length} images</span>
                   </div>
-                  
+
                   {loadingGallery ? (
                     <div className="flex justify-center py-8">
                       <Loader2 className="w-6 h-6 animate-spin text-purple-600" />
@@ -901,11 +986,10 @@ export default function AdminPromotions() {
                         <div
                           key={image.id}
                           onClick={() => handleChange('backgroundImage', image.image_url)}
-                          className={`relative group aspect-video rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${
-                            formData.backgroundImage === image.image_url
-                              ? 'border-purple-600 ring-2 ring-purple-600 ring-offset-2'
-                              : 'border-gray-200 hover:border-purple-400'
-                          }`}
+                          className={`relative group aspect-video rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${formData.backgroundImage === image.image_url
+                            ? 'border-purple-600 ring-2 ring-purple-600 ring-offset-2'
+                            : 'border-gray-200 hover:border-purple-400'
+                            }`}
                         >
                           <img
                             src={image.image_url}
@@ -929,9 +1013,9 @@ export default function AdminPromotions() {
                 {formData.backgroundImage && (
                   <div className="relative">
                     <Label className="text-sm text-gray-600 mb-2 block">Selected Background Image</Label>
-                    <img 
-                      src={formData.backgroundImage} 
-                      alt="Background preview" 
+                    <img
+                      src={formData.backgroundImage}
+                      alt="Background preview"
                       className="w-full h-40 object-cover rounded-lg border-2 border-purple-200"
                     />
                     <button
@@ -1028,11 +1112,10 @@ export default function AdminPromotions() {
                                     type="button"
                                     key={image.id}
                                     onClick={() => handleFeatureCardChange(index, 'image', image.image_url)}
-                                    className={`relative shrink-0 w-24 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                                      card.image === image.image_url
-                                        ? 'border-purple-600 ring-2 ring-purple-600 ring-offset-1'
-                                        : 'border-gray-200 hover:border-purple-400'
-                                    }`}
+                                    className={`relative shrink-0 w-24 h-20 rounded-lg overflow-hidden border-2 transition-all ${card.image === image.image_url
+                                      ? 'border-purple-600 ring-2 ring-purple-600 ring-offset-1'
+                                      : 'border-gray-200 hover:border-purple-400'
+                                      }`}
                                   >
                                     <img
                                       src={image.image_url}
@@ -1100,241 +1183,279 @@ export default function AdminPromotions() {
               </DialogHeader>
 
               <form onSubmit={handleBannerSubmit} className="space-y-4">
-            {/* Banner Title */}
-            <div>
-              <Label htmlFor="banner-title">Banner Title *</Label>
-              <Input
-                id="banner-title"
-                value={bannerFormData.title}
-                onChange={(e) => handleBannerChange('title', e.target.value)}
-                placeholder="e.g., Summer Sale 2026"
-                required
-                className="mt-1"
-              />
-            </div>
+                {/* Banner Title */}
+                <div>
+                  <Label htmlFor="banner-title">Banner Title *</Label>
+                  <Input
+                    id="banner-title"
+                    value={bannerFormData.title}
+                    onChange={(e) => handleBannerChange('title', e.target.value)}
+                    placeholder="e.g., Summer Sale 2026"
+                    required
+                    className="mt-1"
+                  />
+                </div>
 
-            {/* Banner Description */}
-            <div>
-              <Label htmlFor="banner-description">Description</Label>
-              <Textarea
-                id="banner-description"
-                value={bannerFormData.description}
-                onChange={(e) => handleBannerChange('description', e.target.value)}
-                placeholder="Optional description for the banner"
-                rows={3}
-                className="mt-1"
-              />
-            </div>
+                {/* Banner Subtitle */}
+                <div>
+                  <Label htmlFor="banner-subtitle">Subtitle (Small Text Above Title)</Label>
+                  <Input
+                    id="banner-subtitle"
+                    value={bannerFormData.subtitle}
+                    onChange={(e) => handleBannerChange('subtitle', e.target.value)}
+                    placeholder="e.g., LIMITED TIME OFFER"
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Optional small text displayed above the main title</p>
+                </div>
 
-            {/* Image Upload Section */}
-            <div className="space-y-3">
-              <Label>Banner Image *</Label>
-              
-              {/* File Upload */}
-              <div>
-                <label className="block">
-                  <div className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-500 transition-all cursor-pointer bg-gray-50 hover:bg-purple-50">
-                    {uploadingImage ? (
-                      <div className="text-center">
-                        <Loader2 className="w-8 h-8 animate-spin text-purple-600 mx-auto mb-2" />
-                        <p className="text-sm text-gray-600">Uploading to gallery...</p>
+                {/* Highlight Text */}
+                <div>
+                  <Label htmlFor="banner-highlight">Highlight Text (Gradient Text)</Label>
+                  <Input
+                    id="banner-highlight"
+                    value={bannerFormData.highlight_text}
+                    onChange={(e) => handleBannerChange('highlight_text', e.target.value)}
+                    placeholder="e.g., Up to 50% OFF"
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">This text will appear with gradient color below the title</p>
+                </div>
+
+                {/* Banner Description */}
+                <div>
+                  <Label htmlFor="banner-description">Description</Label>
+                  <Textarea
+                    id="banner-description"
+                    value={bannerFormData.description}
+                    onChange={(e) => handleBannerChange('description', e.target.value)}
+                    placeholder="Optional description for the banner"
+                    rows={3}
+                    className="mt-1"
+                  />
+                </div>
+
+                {/* Image Upload Section */}
+                <div className="space-y-3">
+                  <Label>Banner Image *</Label>
+
+                  {/* File Upload */}
+                  <div>
+                    <label className="block">
+                      <div className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-500 transition-all cursor-pointer bg-gray-50 hover:bg-purple-50">
+                        {uploadingImage ? (
+                          <div className="text-center">
+                            <Loader2 className="w-8 h-8 animate-spin text-purple-600 mx-auto mb-2" />
+                            <p className="text-sm text-gray-600">Uploading to gallery...</p>
+                          </div>
+                        ) : (
+                          <div className="text-center">
+                            <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                            <p className="text-sm text-gray-600">
+                              <span className="text-purple-600 font-semibold">Click to upload</span> to gallery
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 10MB</p>
+                          </div>
+                        )}
+                      </div>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                        disabled={uploadingImage}
+                      />
+                    </label>
+                  </div>
+
+                  {/* Gallery Section */}
+                  <div className="border rounded-lg p-4 bg-gray-50">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-semibold text-sm text-gray-900">Image Gallery</h4>
+                      <span className="text-xs text-gray-500">{galleryImages.length} images</span>
+                    </div>
+
+                    {loadingGallery ? (
+                      <div className="flex justify-center py-8">
+                        <Loader2 className="w-6 h-6 animate-spin text-purple-600" />
+                      </div>
+                    ) : galleryImages.length === 0 ? (
+                      <div className="text-center py-8">
+                        <ImageIcon className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                        <p className="text-sm text-gray-600">No images in gallery yet</p>
+                        <p className="text-xs text-gray-500 mt-1">Upload images above to add them</p>
                       </div>
                     ) : (
-                      <div className="text-center">
-                        <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                        <p className="text-sm text-gray-600">
-                          <span className="text-purple-600 font-semibold">Click to upload</span> to gallery
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 10MB</p>
+                      <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto">
+                        {galleryImages.map((image) => (
+                          <div
+                            key={image.id}
+                            className={`relative group aspect-video rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${bannerFormData.image_url === image.image_url
+                              ? 'border-purple-600 ring-2 ring-purple-600 ring-offset-2'
+                              : 'border-gray-200 hover:border-purple-400'
+                              }`}
+                          >
+                            <div onClick={() => selectGalleryImage(image.image_url)} className="w-full h-full">
+                              <img
+                                src={image.image_url}
+                                alt={image.title || 'Gallery image'}
+                                className="w-full h-full object-cover"
+                              />
+                              {bannerFormData.image_url === image.image_url && (
+                                <div className="absolute inset-0 bg-purple-600/20 flex items-center justify-center pointer-events-none">
+                                  <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
+                                    <Check className="w-5 h-5 text-white" />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                            <button
+                              onClick={(e) => handleDeleteGalleryImage(e, image.id)}
+                              className="absolute top-1 right-1 w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 shadow-lg"
+                              title="Delete from gallery"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleFileUpload}
-                    disabled={uploadingImage}
-                  />
-                </label>
-              </div>
 
-              {/* Gallery Section */}
-              <div className="border rounded-lg p-4 bg-gray-50">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-semibold text-sm text-gray-900">Image Gallery</h4>
-                  <span className="text-xs text-gray-500">{galleryImages.length} images</span>
-                </div>
-                
-                {loadingGallery ? (
-                  <div className="flex justify-center py-8">
-                    <Loader2 className="w-6 h-6 animate-spin text-purple-600" />
-                  </div>
-                ) : galleryImages.length === 0 ? (
-                  <div className="text-center py-8">
-                    <ImageIcon className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-600">No images in gallery yet</p>
-                    <p className="text-xs text-gray-500 mt-1">Upload images above to add them</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto">
-                    {galleryImages.map((image) => (
-                      <div
-                        key={image.id}
-                        className={`relative group aspect-video rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${
-                          bannerFormData.image_url === image.image_url
-                            ? 'border-purple-600 ring-2 ring-purple-600 ring-offset-2'
-                            : 'border-gray-200 hover:border-purple-400'
-                        }`}
+                  {/* Selected Image Preview */}
+                  {bannerFormData.image_url && (
+                    <div className="relative">
+                      <Label className="text-sm text-gray-600 mb-2 block">Selected Image Preview</Label>
+                      <img
+                        src={bannerFormData.image_url}
+                        alt="Preview"
+                        className="w-full h-48 object-cover rounded-lg border-2 border-purple-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleBannerChange('image_url', '')}
+                        className="absolute top-8 right-2 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
                       >
-                        <div onClick={() => selectGalleryImage(image.image_url)} className="w-full h-full">
-                          <img
-                            src={image.image_url}
-                            alt={image.title || 'Gallery image'}
-                            className="w-full h-full object-cover"
-                          />
-                          {bannerFormData.image_url === image.image_url && (
-                            <div className="absolute inset-0 bg-purple-600/20 flex items-center justify-center pointer-events-none">
-                              <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
-                                <Check className="w-5 h-5 text-white" />
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        <button
-                          onClick={(e) => handleDeleteGalleryImage(e, image.id)}
-                          className="absolute top-1 right-1 w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 shadow-lg"
-                          title="Delete from gallery"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Button Text */}
+                <div>
+                  <Label htmlFor="button-text">Button Text</Label>
+                  <Input
+                    id="button-text"
+                    value={bannerFormData.button_text}
+                    onChange={(e) => handleBannerChange('button_text', e.target.value)}
+                    placeholder="Shop Now"
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Text displayed on the call-to-action button</p>
+                </div>
+
+                {/* Link URL */}
+                <div>
+                  <Label htmlFor="link-url">Link URL (Optional)</Label>
+                  <Input
+                    id="link-url"
+                    value={bannerFormData.link_url}
+                    onChange={(e) => handleBannerChange('link_url', e.target.value)}
+                    placeholder="e.g., /Products?category=sale"
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Where users will be redirected when clicking the banner</p>
+                </div>
+
+                {/* Banner Duration */}
+                <div className="bg-blue-50 p-4 rounded-lg space-y-3">
+                  <Label className="text-base font-semibold text-blue-900">Banner Duration (Optional)</Label>
+                  <p className="text-sm text-blue-700 mb-3">Set when this banner should be displayed</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="start-date" className="text-sm">Start Date</Label>
+                      <Input
+                        id="start-date"
+                        type="datetime-local"
+                        value={bannerFormData.start_date}
+                        onChange={(e) => handleBannerChange('start_date', e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="end-date" className="text-sm">End Date</Label>
+                      <Input
+                        id="end-date"
+                        type="datetime-local"
+                        value={bannerFormData.end_date}
+                        onChange={(e) => handleBannerChange('end_date', e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
                   </div>
-                )}
-              </div>
+                  <p className="text-xs text-blue-600 mt-2">Leave empty for permanent display. Banner will auto-activate/deactivate based on dates.</p>
+                </div>
 
-              {/* Selected Image Preview */}
-              {bannerFormData.image_url && (
-                <div className="relative">
-                  <Label className="text-sm text-gray-600 mb-2 block">Selected Image Preview</Label>
-                  <img
-                    src={bannerFormData.image_url}
-                    alt="Preview"
-                    className="w-full h-48 object-cover rounded-lg border-2 border-purple-200"
+                {/* Slide Duration */}
+                <div>
+                  <Label htmlFor="display-duration">Slide Duration (seconds)</Label>
+                  <Input
+                    id="display-duration"
+                    type="number"
+                    min={3}
+                    max={60}
+                    value={bannerFormData.display_duration}
+                    onChange={(e) => handleBannerChange('display_duration', Math.max(3, Math.min(60, parseInt(e.target.value, 10) || 0)))}
+                    className="mt-1"
                   />
-                  <button
+                  <p className="text-xs text-gray-500 mt-1">How long this slide stays visible before auto-advancing. Minimum 3 seconds.</p>
+                </div>
+
+                {/* Display Order */}
+                <div>
+                  <Label htmlFor="display-order">Display Order</Label>
+                  <Input
+                    id="display-order"
+                    type="number"
+                    value={bannerFormData.display_order}
+                    onChange={(e) => handleBannerChange('display_order', parseInt(e.target.value) || 0)}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Lower numbers appear first</p>
+                </div>
+
+                {/* Is Active */}
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <Label htmlFor="is-active" className="text-base font-semibold">Active Status</Label>
+                    <p className="text-sm text-gray-600">Show this banner on the website</p>
+                  </div>
+                  <Switch
+                    id="is-active"
+                    checked={bannerFormData.is_active}
+                    onCheckedChange={(checked) => handleBannerChange('is_active', checked)}
+                  />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-4">
+                  <Button
                     type="button"
-                    onClick={() => handleBannerChange('image_url', '')}
-                    className="absolute top-8 right-2 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                    variant="outline"
+                    onClick={closeDialog}
+                    className="flex-1"
                   >
-                    <X className="w-4 h-4" />
-                  </button>
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={createBannerMutation.isPending || updateBannerMutation.isPending || !bannerFormData.image_url}
+                    className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                  >
+                    {editingBanner ? 'Update Banner' : 'Create Banner'}
+                  </Button>
                 </div>
-              )}
-            </div>
-
-            {/* Link URL */}
-            <div>
-              <Label htmlFor="link-url">Link URL (Optional)</Label>
-              <Input
-                id="link-url"
-                value={bannerFormData.link_url}
-                onChange={(e) => handleBannerChange('link_url', e.target.value)}
-                placeholder="e.g., /Products?category=sale"
-                className="mt-1"
-              />
-              <p className="text-xs text-gray-500 mt-1">Where users will be redirected when clicking the banner</p>
-            </div>
-
-            {/* Banner Duration */}
-            <div className="bg-blue-50 p-4 rounded-lg space-y-3">
-              <Label className="text-base font-semibold text-blue-900">Banner Duration (Optional)</Label>
-              <p className="text-sm text-blue-700 mb-3">Set when this banner should be displayed</p>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label htmlFor="start-date" className="text-sm">Start Date</Label>
-                  <Input
-                    id="start-date"
-                    type="datetime-local"
-                    value={bannerFormData.start_date}
-                    onChange={(e) => handleBannerChange('start_date', e.target.value)}
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="end-date" className="text-sm">End Date</Label>
-                  <Input
-                    id="end-date"
-                    type="datetime-local"
-                    value={bannerFormData.end_date}
-                    onChange={(e) => handleBannerChange('end_date', e.target.value)}
-                    className="mt-1"
-                  />
-                </div>
-              </div>
-              <p className="text-xs text-blue-600 mt-2">Leave empty for permanent display. Banner will auto-activate/deactivate based on dates.</p>
-            </div>
-
-            {/* Slide Duration */}
-            <div>
-              <Label htmlFor="display-duration">Slide Duration (seconds)</Label>
-              <Input
-                id="display-duration"
-                type="number"
-                min={3}
-                max={60}
-                value={bannerFormData.display_duration}
-                onChange={(e) => handleBannerChange('display_duration', Math.max(3, Math.min(60, parseInt(e.target.value, 10) || 0)))}
-                className="mt-1"
-              />
-              <p className="text-xs text-gray-500 mt-1">How long this slide stays visible before auto-advancing. Minimum 3 seconds.</p>
-            </div>
-
-            {/* Display Order */}
-            <div>
-              <Label htmlFor="display-order">Display Order</Label>
-              <Input
-                id="display-order"
-                type="number"
-                value={bannerFormData.display_order}
-                onChange={(e) => handleBannerChange('display_order', parseInt(e.target.value) || 0)}
-                className="mt-1"
-              />
-              <p className="text-xs text-gray-500 mt-1">Lower numbers appear first</p>
-            </div>
-
-            {/* Is Active */}
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-              <div>
-                <Label htmlFor="is-active" className="text-base font-semibold">Active Status</Label>
-                <p className="text-sm text-gray-600">Show this banner on the website</p>
-              </div>
-              <Switch
-                id="is-active"
-                checked={bannerFormData.is_active}
-                onCheckedChange={(checked) => handleBannerChange('is_active', checked)}
-              />
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={closeDialog}
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={createBannerMutation.isPending || updateBannerMutation.isPending || !bannerFormData.image_url}
-                className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-              >
-                {editingBanner ? 'Update Banner' : 'Create Banner'}
-              </Button>
-            </div>
               </form>
             </DialogContent>
           </Dialog>
