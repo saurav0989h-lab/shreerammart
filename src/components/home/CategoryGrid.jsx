@@ -35,40 +35,40 @@ export default function CategoryGrid({ categories = [] }) {
   const displayCategories = categories.length > 0 ? categories.slice(0, 5) : defaultCategories;
 
   return (
-    <section className="py-20 relative overflow-hidden bg-gray-50/50">
+    <section className="py-16 sm:py-24 lg:py-32 relative overflow-hidden bg-gradient-to-b from-gray-50/50 via-white to-purple-50/30">
       {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-[10%] left-[-5%] w-64 h-64 bg-purple-200/20 rounded-full blur-3xl animate-float-slow" />
-        <div className="absolute bottom-[10%] right-[-5%] w-64 h-64 bg-emerald-200/20 rounded-full blur-3xl animate-float" />
+        <div className="absolute top-[5%] left-[-8%] w-72 h-72 bg-purple-200/15 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-[5%] right-[-8%] w-96 h-96 bg-pink-200/15 rounded-full blur-3xl animate-pulse" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center mb-16">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 relative z-10">
+        <div className="text-center mb-12 sm:mb-16 lg:mb-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-block p-2 px-4 rounded-full bg-white border border-gray-100 shadow-sm mb-4"
+            className="inline-block p-2 px-4 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 border border-purple-200 shadow-sm mb-4"
           >
-            <span className="text-sm font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Explore Collections
+            <span className="text-xs sm:text-sm font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent uppercase tracking-widest">
+              🛍️ Explore Collections
             </span>
           </motion.div>
 
           <motion.h2
-            className="text-4xl lg:text-5xl font-black mb-6 text-gray-900"
+            className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black mb-4 sm:mb-6 text-gray-900 leading-tight"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
           >
-            <span className="bg-gradient-premium bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent">
               {t('browseCategories')}
             </span>
           </motion.h2>
 
           <motion.p
-            className="text-lg text-gray-600 max-w-2xl mx-auto"
+            className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto font-medium"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -78,7 +78,7 @@ export default function CategoryGrid({ categories = [] }) {
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5 lg:gap-6">
           {displayCategories.map((category, index) => {
             const Icon = categoryIcons[category.slug] || Package;
             const colors = categoryColors[category.slug] || categoryColors.default;
@@ -86,10 +86,10 @@ export default function CategoryGrid({ categories = [] }) {
             return (
               <motion.div
                 key={category.id}
-                initial={{ opacity: 0, y: 40, rotateX: -10 }}
+                initial={{ opacity: 0, y: 40, rotateX: -15 }}
                 whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.1, duration: 0.6, type: "spring" }}
+                transition={{ delay: index * 0.1, duration: 0.6, type: "spring", stiffness: 100 }}
                 className="h-full"
               >
                 <CategoryCard3D

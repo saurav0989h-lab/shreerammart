@@ -45,6 +45,8 @@ import AdminShoppingLists from "./AdminShoppingLists";
 
 import AdminPromotions from "./AdminPromotions";
 
+import AdminHomepage from "./AdminHomepage";
+
 import MyShoppingLists from "./MyShoppingLists";
 
 import Login from "./Login";
@@ -100,6 +102,8 @@ const PAGES = {
     AdminShoppingLists: AdminShoppingLists,
 
     AdminPromotions: AdminPromotions,
+
+    AdminHomepage: AdminHomepage,
 
     MyShoppingLists: MyShoppingLists,
 
@@ -183,6 +187,8 @@ function PagesContent() {
                 <Route path="/adminsettings" element={<AdminSettings />} />
 
                 <Route path="/adminpromotions" element={<AdminPromotions />} />
+
+                <Route path="/adminhomepage" element={<AdminHomepage />} />
 
                 <Route path="/MyShoppingLists" element={<MyShoppingLists />} />
 

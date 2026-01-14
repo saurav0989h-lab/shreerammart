@@ -41,36 +41,36 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-100">
+    <footer className="bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-gray-100">
       {/* Top Section with Features */}
-      <div className="border-b border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="flex items-center gap-4 p-4 bg-white/5 rounded-xl backdrop-blur-sm">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0">
-                <Truck className="w-6 h-6 text-white" />
+      <div className="border-b border-gray-700/50">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-10 sm:py-12">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+            <div className="flex items-center gap-4 p-5 sm:p-6 bg-gradient-to-br from-emerald-500/10 to-green-500/5 rounded-2xl backdrop-blur-sm border border-emerald-500/20 hover:border-emerald-500/40 transition-all">
+              <div className="w-12 sm:w-14 h-12 sm:h-14 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center flex-shrink-0 shadow-lg">
+                <Truck className="w-6 sm:w-7 h-6 sm:h-7 text-white" />
               </div>
               <div>
-                <h4 className="font-bold text-white mb-1">Free Delivery</h4>
-                <p className="text-xs text-gray-400">On orders above Rs. 500</p>
+                <h4 className="font-bold text-white mb-1 text-sm sm:text-base">Free Delivery</h4>
+                <p className="text-xs sm:text-sm text-gray-300">On orders over Rs. 1500</p>
               </div>
             </div>
-            <div className="flex items-center gap-4 p-4 bg-white/5 rounded-xl backdrop-blur-sm">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center flex-shrink-0">
-                <CreditCard className="w-6 h-6 text-white" />
+            <div className="flex items-center gap-4 p-5 sm:p-6 bg-gradient-to-br from-purple-500/10 to-pink-500/5 rounded-2xl backdrop-blur-sm border border-purple-500/20 hover:border-purple-500/40 transition-all">
+              <div className="w-12 sm:w-14 h-12 sm:h-14 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center flex-shrink-0 shadow-lg">
+                <CreditCard className="w-6 sm:w-7 h-6 sm:h-7 text-white" />
               </div>
               <div>
-                <h4 className="font-bold text-white mb-1">COD Available</h4>
-                <p className="text-xs text-gray-400">Pay on delivery</p>
+                <h4 className="font-bold text-white mb-1 text-sm sm:text-base">Multiple Payment</h4>
+                <p className="text-xs sm:text-sm text-gray-300">COD, Digital & Cards</p>
               </div>
             </div>
-            <div className="flex items-center gap-4 p-4 bg-white/5 rounded-xl backdrop-blur-sm">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
-                <Shield className="w-6 h-6 text-white" />
+            <div className="flex items-center gap-4 p-5 sm:p-6 bg-gradient-to-br from-blue-500/10 to-indigo-500/5 rounded-2xl backdrop-blur-sm border border-blue-500/20 hover:border-blue-500/40 transition-all">
+              <div className="w-12 sm:w-14 h-12 sm:h-14 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg">
+                <Shield className="w-6 sm:w-7 h-6 sm:h-7 text-white" />
               </div>
               <div>
-                <h4 className="font-bold text-white mb-1">100% Secure</h4>
-                <p className="text-xs text-gray-400">Safe shopping guaranteed</p>
+                <h4 className="font-bold text-white mb-1 text-sm sm:text-base">100% Secure</h4>
+                <p className="text-xs sm:text-sm text-gray-300">Safe & verified</p>
               </div>
             </div>
           </div>

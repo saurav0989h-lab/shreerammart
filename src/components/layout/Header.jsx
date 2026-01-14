@@ -98,15 +98,15 @@ export default function Header({ user, onLogout }) {
             </Link>
 
             {/* Search Bar - Desktop/Tablet */}
-            <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl">
-              <div className="relative w-full group">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-purple-600 transition-colors" />
+            <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl mx-4">
+              <div className="relative w-full group flex-1">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-purple-600 transition-colors" />
                 <Input
                   type="text"
                   placeholder={t('searchProducts')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-11 pr-4 py-5 rounded-full border-2 border-gray-200 focus:border-purple-600 focus:ring-2 focus:ring-purple-100 transition-all"
+                  className="w-full pl-12 pr-5 py-3.5 rounded-full border-2 border-gray-200 hover:border-purple-400 focus:border-purple-600 focus:ring-2 focus:ring-purple-100 transition-all duration-300 shadow-sm hover:shadow-md font-medium text-sm"
                 />
               </div>
             </form>
@@ -157,10 +157,10 @@ export default function Header({ user, onLogout }) {
 
               {/* Cart */}
               <Link to={createPageUrl('Cart')}>
-                <Button variant="ghost" size="icon" className="relative hover:bg-purple-50 hover:text-purple-600 transition-all h-10 w-10">
-                  <ShoppingCart className="w-5 h-5" />
+                <Button variant="ghost" size="icon" className="relative hover:bg-purple-50 hover:text-purple-600 transition-all h-11 w-11 hover:scale-110">
+                  <ShoppingCart className="w-6 h-6" />
                   {cartCount > 0 && (
-                    <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-gradient-to-r from-purple-600 to-pink-600 animate-pulse">
+                    <Badge className="absolute -top-2 -right-2 h-6 w-6 flex items-center justify-center p-0 text-xs font-bold bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-lg animate-bounce">
                       {cartCount}
                     </Badge>
                   )}

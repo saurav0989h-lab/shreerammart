@@ -3,14 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 import HeroSlider from '@/components/home/HeroSlider';
 import CategoryGrid from '@/components/home/CategoryGrid';
 import FeaturedProducts from '@/components/home/FeaturedProducts';
-import PromoSection from '@/components/home/PromoSection';
-import PromotionBanners from '@/components/home/PromotionBanners';
-import PromotionPopup from '@/components/home/PromotionPopup';
 import WhyChooseUs from '@/components/home/WhyChooseUs';
 import Testimonials from '@/components/home/Testimonials';
 import ListUploadForm from '@/components/checkout/ListUploadForm';
 import { Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
 
 export default function Home() {
   const { data: categories = [] } = useQuery({
@@ -27,9 +23,22 @@ export default function Home() {
 
   return (
     <div className="bg-gray-50">
+      {/* 1. Banner */}
       <HeroSlider />
 
-      {/* List Upload Section */}
+      {/* 2. Featured Products */}
+      {isLoading ? (
+        <div className="py-16 flex justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+        </div>
+      ) : (
+        <FeaturedProducts products={featuredProducts} />
+      )}
+
+      {/* 3. Category Grid (Dairy, Grocery, Sweet, Furniture, etc.) */}
+      <CategoryGrid categories={categories} />
+
+      {/* 4. Shopping List Upload Section */}
       <section className="py-12 bg-white border-y border-gray-200">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-8">
@@ -42,19 +51,10 @@ export default function Home() {
         </div>
       </section>
 
-      <PromotionPopup />
-      <PromotionBanners />
-      <PromoSection />
-      <CategoryGrid categories={categories} />
-      {isLoading ? (
-        <div className="py-16 flex justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
-        </div>
-      ) : (
-        <FeaturedProducts products={featuredProducts} />
-      )}
-
+      {/* 5. Why Shop with Us */}
       <WhyChooseUs />
+
+      {/* 6. Customer Reviews */}
       <Testimonials />
     </div>
   );

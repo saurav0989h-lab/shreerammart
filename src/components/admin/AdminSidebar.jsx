@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import {
   LayoutDashboard, ShoppingBag, Package, Users, Settings, LogOut,
-  ArrowRight, X, MessageSquare, MapPin, Truck, ChevronDown, ChevronRight, FolderOpen, Megaphone
+  ArrowRight, X, MessageSquare, MapPin, Truck, ChevronDown, ChevronRight, FolderOpen, Home
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -28,10 +28,10 @@ export default function AdminSidebar({ user, isOpen, onClose, pendingOrders = 0 
 
   const navItems = [
     { name: 'Dashboard', page: 'AdminDashboard', icon: LayoutDashboard },
+    { name: 'Homepage', page: 'AdminHomepage', icon: Home },
     { name: 'Orders', page: 'AdminOrders', icon: ShoppingBag, badge: pendingOrders },
     { name: 'Shopping Lists', page: 'AdminShoppingLists', icon: MessageSquare },
     { name: 'Products', page: 'AdminProducts', icon: Package },
-    { name: 'Promotions', page: 'AdminPromotions', icon: Megaphone },
   ];
 
   const settingsItems = [
