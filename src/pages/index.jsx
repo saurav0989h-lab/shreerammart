@@ -1,4 +1,5 @@
 import Layout from "./Layout.jsx";
+import { CartProvider } from "@/components/ui/CartContext";
 
 import Home from "./Home";
 
@@ -203,8 +204,10 @@ function PagesContent() {
 
 export default function Pages() {
     return (
-        <Router>
-            <PagesContent />
-        </Router>
+        <CartProvider>
+            <Router>
+                <PagesContent />
+            </Router>
+        </CartProvider>
     );
 }
