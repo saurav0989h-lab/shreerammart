@@ -3,7 +3,7 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '@/components/ui/LanguageContext';
-import { MapPin, Phone, Mail, Clock, Facebook, Instagram, ExternalLink, Store, Shield, CreditCard, Truck, Wallet, Smartphone, Globe } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, ExternalLink, Store, Shield, CreditCard, Truck, Wallet, Smartphone, Globe, Facebook, Instagram, Youtube } from 'lucide-react';
 
 export default function Footer() {
   const { t } = useLanguage();
@@ -147,15 +147,6 @@ export default function Footer() {
                 </div>
               </div>
             </div>
-            
-            <div className="flex gap-3 mt-6">
-              <a href="#" className="w-10 h-10 rounded-full bg-white/10 hover:bg-purple-600 flex items-center justify-center transition-all hover:scale-110">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-white/10 hover:bg-pink-600 flex items-center justify-center transition-all hover:scale-110">
-                <Instagram className="w-5 h-5" />
-              </a>
-            </div>
           </div>
 
           {/* Quick Links */}
@@ -192,6 +183,22 @@ export default function Footer() {
                 <span className="text-gray-300">6:00 AM - 10:00 PM</span>
               </li>
             </ul>
+            
+            {/* Social Media Icons */}
+            <div className="mt-6 flex items-center gap-3">
+              <a href="#" target="_blank" rel="noopener noreferrer" className="w-11 h-11 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center hover:shadow-lg hover:scale-110 transition-all">
+                <Facebook className="w-5 h-5 text-white" />
+              </a>
+              <a href="#" target="_blank" rel="noopener noreferrer" className="w-11 h-11 bg-gradient-to-br from-pink-500 to-red-500 rounded-lg flex items-center justify-center hover:shadow-lg hover:scale-110 transition-all">
+                <Instagram className="w-5 h-5 text-white" />
+              </a>
+              <a href="#" target="_blank" rel="noopener noreferrer" className="w-11 h-11 bg-gradient-to-br from-gray-800 to-black rounded-lg flex items-center justify-center hover:shadow-lg hover:scale-110 transition-all">
+                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.08 1.61 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a5.97 5.97 0 0 0-1-.08A6.59 6.59 0 0 0 5 16.35a6.59 6.59 0 0 0 6.59 6.59 6.52 6.52 0 0 0 6.59-6.59V8.41a8.21 8.21 0 0 0 3.41 1.41v-3.13z"/></svg>
+              </a>
+              <a href="#" target="_blank" rel="noopener noreferrer" className="w-11 h-11 bg-gradient-to-br from-red-600 to-red-700 rounded-lg flex items-center justify-center hover:shadow-lg hover:scale-110 transition-all">
+                <Youtube className="w-5 h-5 text-white" />
+              </a>
+            </div>
           </div>
 
           {/* Delivery Info */}
@@ -202,14 +209,6 @@ export default function Footer() {
               <li>✓ {t('sameDayDelivery')}</li>
               <li>✓ {t('freeDeliveryOver')} {t('rs')}1500</li>
             </ul>
-            <div className="mt-4 flex gap-3">
-              <a href="#" className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-emerald-600 transition-colors">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-emerald-600 transition-colors">
-                <Instagram className="w-5 h-5" />
-              </a>
-            </div>
           </div>
         </div>
 
