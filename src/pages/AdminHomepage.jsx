@@ -74,20 +74,22 @@ export default function AdminHomepage() {
   const uploadImageMutation = useMutation({
     mutationFn: async (file) => {
       setUploadingImage(true);
-      const formDataObj = new FormData();
-      formDataObj.append('file', file);
-      
-      // Upload via base44
-      const result = await base44.integrations.uploadFile(formDataObj);
-      return result.url || result.file_url;
+      try {
+        // Upload via base44 - Use correct method path
+        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+        return file_url;
+      } catch (error) {
+        setUploadingImage(false);
+        throw error;
+      }
     },
     onSuccess: (url) => {
       setFormData(prev => ({ ...prev, image_url: url }));
       toast.success('Image uploaded successfully');
       setUploadingImage(false);
     },
-    onError: () => {
-      toast.error('Failed to upload image');
+    onError: (error) => {
+      toast.error('Failed to upload image: ' + (error?.message || 'Unknown error'));
       setUploadingImage(false);
     }
   });
