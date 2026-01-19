@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { Mail, Phone, Lock, Loader2 } from 'lucide-react';
+import { useGoogleLogin } from '@react-oauth/google';
 
 export default function Login({ initialMode = 'login' }) {
     const [authMode, setAuthMode] = useState(initialMode);
@@ -166,17 +167,44 @@ export default function Login({ initialMode = 'login' }) {
         }
     };
 
-    const handleGoogleAuth = async (mode) => {
-        setGoogleLoading(true);
-        try {
-            await base44.auth.loginWithGoogle();
-            toast.success(mode === 'signup' ? 'Successfully signed up with Google!' : 'Successfully logged in with Google!');
-            window.location.href = '/';
-        } catch (error) {
-            toast.error('Google authentication failed');
-        } finally {
+    const googleLogin = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            try {
+                setGoogleLoading(true);
+                // Get user info from Google
+                const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                    headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+                });
+                const userInfo = await userInfoResponse.json();
+
+                // Send to your backend for authentication
+                await base44.auth.loginWithGoogle({
+                    access_token: tokenResponse.access_token,
+                    email: userInfo.email,
+                    name: userInfo.name,
+                    picture: userInfo.picture,
+                    given_name: userInfo.given_name,
+                    family_name: userInfo.family_name
+                });
+
+                toast.success('Successfully logged in with Google!');
+                window.location.href = '/';
+            } catch (error) {
+                console.error('Google auth error:', error);
+                toast.error('Google authentication failed: ' + (error.message || 'Unknown error'));
+            } finally {
+                setGoogleLoading(false);
+            }
+        },
+        onError: () => {
+            toast.error('Google Sign-In was cancelled or failed');
             setGoogleLoading(false);
-        }
+        },
+    });
+
+    const handleGoogleAuth = () => {
+        setGoogleLoading(true);
+        googleLogin();
     };
 
     const renderDivider = (label) => (
@@ -326,7 +354,7 @@ export default function Login({ initialMode = 'login' }) {
                             variant="outline"
                             type="button"
                             disabled={googleLoading}
-                            onClick={() => handleGoogleAuth('login')}
+                            onClick={() => handleGoogleAuth()}
                             className="w-full flex items-center justify-center gap-2"
                         >
                             {googleLoading ? (
@@ -546,7 +574,7 @@ export default function Login({ initialMode = 'login' }) {
                             variant="outline"
                             type="button"
                             disabled={googleLoading}
-                            onClick={() => handleGoogleAuth('signup')}
+                            onClick={() => handleGoogleAuth()}
                             className="w-full flex items-center justify-center gap-2"
                         >
                             {googleLoading ? (

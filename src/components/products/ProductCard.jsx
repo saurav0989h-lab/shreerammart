@@ -3,16 +3,19 @@ import { Plus, Minus, ShoppingCart, Check, Heart, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/components/ui/CartContext';
 import { useLanguage } from '@/components/ui/LanguageContext';
+import { useCurrency } from '@/components/ui/CurrencyContext';
 import { useWishlist } from '@/components/ui/WishlistContext';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { formatConvertedPrice } from '@/utils/currency';
 
 export default function ProductCard({ product }) {
   const { cart, addToCart, updateQuantity } = useCart();
   const { t, language } = useLanguage();
+  const { getSecondaryCurrencies, isIndianUser } = useCurrency();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const [showAdded, setShowAdded] = useState(false);
   const [customWeight, setCustomWeight] = useState('');
@@ -182,6 +185,27 @@ export default function ProductCard({ product }) {
           )}
           <span className="text-sm text-gray-500 font-medium">/{product.unit_type}</span>
         </div>
+
+        {/* Secondary Currency Display */}
+        {getSecondaryCurrencies().length > 0 && (
+          <div className="flex items-center gap-2 mb-3 text-xs text-gray-600">
+            {isIndianUser ? (
+              <>
+                <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded font-medium">
+                  ≈ {formatConvertedPrice(displayPrice, 'INR')}
+                </span>
+                <span className="text-gray-400">|</span>
+                <span className="bg-green-50 text-green-700 px-2 py-1 rounded font-medium">
+                  ≈ {formatConvertedPrice(displayPrice, 'USD')}
+                </span>
+              </>
+            ) : (
+              <span className="bg-green-50 text-green-700 px-2 py-1 rounded font-medium">
+                ≈ {formatConvertedPrice(displayPrice, 'USD')}
+              </span>
+            )}
+          </div>
+        )}
 
         {product.stock_quantity > 0 && (
           <AnimatePresence mode="wait">

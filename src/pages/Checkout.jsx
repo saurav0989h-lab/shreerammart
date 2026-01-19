@@ -15,7 +15,8 @@ import { toast } from 'sonner';
 import PaymentMethodSelector from '@/components/checkout/PaymentMethodSelector';
 import GiftOrderForm from '@/components/checkout/GiftOrderForm';
 import PaymentProcessor from '@/components/checkout/PaymentProcessor';
-import { convertToUSD } from '@/utils/currency';
+import { convertToUSD, formatConvertedPrice } from '@/utils/currency';
+import { useCurrency } from '@/components/ui/CurrencyContext';
 import LocationPicker from '@/components/checkout/LocationPicker';
 import ReplacementSelector from '@/components/checkout/ReplacementSelector';
 import { sendOrderConfirmationEmail } from '@/components/utils/emailService.jsx';
@@ -43,6 +44,7 @@ const timeSlots = [
 export default function Checkout() {
   const navigate = useNavigate();
   const { cart, cartTotal, clearCart, setCart } = useCart();
+  const { getSecondaryCurrencies, isIndianUser } = useCurrency();
   const [shoppingListData, setShoppingListData] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isInternationalOrder, setIsInternationalOrder] = useState(false);
@@ -940,6 +942,25 @@ export default function Checkout() {
                           <Globe className="w-4 h-4" /> USD Amount
                         </span>
                         <span className="font-medium">${convertToUSD(grandTotal).toFixed(2)}</span>
+                      </div>
+                    )}
+                    {!isInternationalPayment && getSecondaryCurrencies().length > 0 && (
+                      <div className="flex items-center gap-2 text-sm mt-2 pt-2 border-t border-gray-100">
+                        {isIndianUser ? (
+                          <>
+                            <span className="bg-blue-50 text-blue-600 px-2 py-1 rounded">
+                              ≈ {formatConvertedPrice(grandTotal, 'INR')}
+                            </span>
+                            <span className="text-gray-400">|</span>
+                            <span className="bg-green-50 text-green-600 px-2 py-1 rounded">
+                              ≈ {formatConvertedPrice(grandTotal, 'USD')}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="bg-green-50 text-green-600 px-2 py-1 rounded ml-auto">
+                            ≈ {formatConvertedPrice(grandTotal, 'USD')}
+                          </span>
+                        )}
                       </div>
                     )}
                   </div>

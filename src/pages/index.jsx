@@ -1,5 +1,7 @@
 import Layout from "./Layout.jsx";
 import { CartProvider } from "@/components/ui/CartContext";
+import { CurrencyProvider } from "@/components/ui/CurrencyContext";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 import Home from "./Home";
 
@@ -204,10 +206,14 @@ function PagesContent() {
 
 export default function Pages() {
     return (
-        <CartProvider>
-            <Router>
-                <PagesContent />
-            </Router>
-        </CartProvider>
+        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
+            <CurrencyProvider>
+                <CartProvider>
+                    <Router>
+                        <PagesContent />
+                    </Router>
+                </CartProvider>
+            </CurrencyProvider>
+        </GoogleOAuthProvider>
     );
 }

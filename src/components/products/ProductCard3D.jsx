@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { useCart } from '@/components/ui/CartContext';
 import { useLanguage } from '@/components/ui/LanguageContext';
-import { convertToUSD, formatCurrency } from '@/utils/currency';
+import { useCurrency } from '@/components/ui/CurrencyContext';
+import { convertToUSD, formatCurrency, formatConvertedPrice } from '@/utils/currency';
 import { ShoppingCart, Heart, Eye, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,6 +14,7 @@ import QuickViewModal from './QuickViewModal';
 export default function ProductCard3D({ product }) {
     const { addToCart } = useCart();
     const { language } = useLanguage();
+    const { getSecondaryCurrencies, isIndianUser } = useCurrency();
     const [isHovered, setIsHovered] = useState(false);
     const [isAdded, setIsAdded] = useState(false);
     const [showQuickView, setShowQuickView] = useState(false);
@@ -149,10 +151,26 @@ export default function ProductCard3D({ product }) {
                             )}
                         </div>
 
-                        {/* USD Price (Subtle) */}
-                        <p className="text-xs text-gray-500 font-medium">
-                            ≈ {formatCurrency(priceUSD, 'USD')}
-                        </p>
+                        {/* Secondary Currency Display */}
+                        {getSecondaryCurrencies().length > 0 && (
+                            <div className="flex items-center gap-2 text-xs">
+                                {isIndianUser ? (
+                                    <>
+                                        <span className="text-blue-600 font-medium">
+                                            ≈ {formatConvertedPrice(price, 'INR')}
+                                        </span>
+                                        <span className="text-gray-400">|</span>
+                                        <span className="text-green-600 font-medium">
+                                            ≈ {formatConvertedPrice(price, 'USD')}
+                                        </span>
+                                    </>
+                                ) : (
+                                    <span className="text-green-600 font-medium">
+                                        ≈ {formatConvertedPrice(price, 'USD')}
+                                    </span>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </Link>

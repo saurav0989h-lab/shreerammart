@@ -4,12 +4,14 @@ import { X, ShoppingCart, Heart, Star, Plus, Minus, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/components/ui/CartContext';
 import { useLanguage } from '@/components/ui/LanguageContext';
-import { formatCurrency, convertToUSD } from '@/utils/currency';
+import { useCurrency } from '@/components/ui/CurrencyContext';
+import { formatCurrency, convertToUSD, formatConvertedPrice } from '@/utils/currency';
 import { toast } from 'sonner';
 
 export default function QuickViewModal({ product, isOpen, onClose }) {
     const { addToCart } = useCart();
     const { t, language } = useLanguage();
+    const { getSecondaryCurrencies, isIndianUser } = useCurrency();
     const [quantity, setQuantity] = useState(1);
     const [isAdded, setIsAdded] = useState(false);
 
@@ -103,9 +105,27 @@ export default function QuickViewModal({ product, isOpen, onClose }) {
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="text-sm text-gray-500 mt-1">
-                                            ≈ {formatCurrency(priceUSD, 'USD')}
-                                        </p>
+                                        
+                                        {/* Secondary Currency Display */}
+                                        {getSecondaryCurrencies().length > 0 && (
+                                            <div className="flex items-center gap-2 mt-2">
+                                                {isIndianUser ? (
+                                                    <>
+                                                        <span className="text-sm bg-blue-50 text-blue-700 px-3 py-1 rounded-lg font-medium">
+                                                            ≈ {formatConvertedPrice(price, 'INR')}
+                                                        </span>
+                                                        <span className="text-gray-400">|</span>
+                                                        <span className="text-sm bg-green-50 text-green-700 px-3 py-1 rounded-lg font-medium">
+                                                            ≈ {formatConvertedPrice(price, 'USD')}
+                                                        </span>
+                                                    </>
+                                                ) : (
+                                                    <span className="text-sm bg-green-50 text-green-700 px-3 py-1 rounded-lg font-medium">
+                                                        ≈ {formatConvertedPrice(price, 'USD')}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
 
                                     <p className="text-gray-600 leading-relaxed">

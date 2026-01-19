@@ -2,15 +2,18 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { useCart } from '@/components/ui/CartContext';
+import { useCurrency } from '@/components/ui/CurrencyContext';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Plus, Minus, Trash2, ShoppingBag, ArrowRight, ArrowLeft, CheckCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { formatConvertedPrice } from '@/utils/currency';
 
 export default function Cart() {
   const { cart, updateQuantity, removeFromCart, cartTotal, clearCart } = useCart();
+  const { getSecondaryCurrencies, isIndianUser } = useCurrency();
   const [shoppingListData, setShoppingListData] = useState(null);
   const [phoneNumber, setPhoneNumber] = useState('');
 
@@ -263,6 +266,19 @@ export default function Cart() {
                     <span>Total</span>
                     <span className="text-emerald-600">Rs. {grandTotal.toLocaleString()}</span>
                   </div>
+                  {getSecondaryCurrencies().length > 0 && (
+                    <div className="mt-2 pt-2 border-t border-gray-100 flex items-center justify-between text-sm">
+                      {isIndianUser ? (
+                        <>
+                          <span className="text-blue-600">≈ {formatConvertedPrice(grandTotal, 'INR')}</span>
+                          <span className="text-gray-400 mx-2">|</span>
+                          <span className="text-green-600">≈ {formatConvertedPrice(grandTotal, 'USD')}</span>
+                        </>
+                      ) : (
+                        <span className="text-green-600 ml-auto">≈ {formatConvertedPrice(grandTotal, 'USD')}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 

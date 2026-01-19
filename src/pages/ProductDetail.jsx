@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '@/components/ui/LanguageContext';
+import { useCurrency } from '@/components/ui/CurrencyContext';
 import { useCart } from '@/components/ui/CartContext';
 import { useWishlist } from '@/components/ui/WishlistContext';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ArrowLeft, ShoppingCart, Heart, Star, MessageSquare, Loader2, Upload, X } from 'lucide-react';
 import { createPageUrl } from '@/utils';
+import { formatConvertedPrice } from '@/utils/currency';
 import StarRating from '@/components/reviews/StarRating';
 import ReviewForm from '@/components/reviews/ReviewForm';
 import ReviewList from '@/components/reviews/ReviewList';
@@ -18,6 +20,7 @@ export default function ProductDetail() {
   const urlParams = new URLSearchParams(window.location.search);
   const productId = urlParams.get('id');
   const { t, language } = useLanguage();
+  const { getSecondaryCurrencies, isIndianUser } = useCurrency();
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const [selectedImage, setSelectedImage] = useState(0);
@@ -239,6 +242,35 @@ export default function ProductDetail() {
                 )}
                 <span className="text-gray-500">/{product.unit_type}</span>
               </div>
+
+              {/* Secondary Currency Display */}
+              {getSecondaryCurrencies().length > 0 && (
+                <div className="flex items-center gap-3 mb-6 flex-wrap">
+                  {isIndianUser ? (
+                    <>
+                      <div className="bg-blue-50 border border-blue-200 px-4 py-2 rounded-lg">
+                        <span className="text-xs text-blue-600 font-medium uppercase">INR</span>
+                        <p className="text-lg font-bold text-blue-700">
+                          ≈ {formatConvertedPrice(displayPrice, 'INR')}
+                        </p>
+                      </div>
+                      <div className="bg-green-50 border border-green-200 px-4 py-2 rounded-lg">
+                        <span className="text-xs text-green-600 font-medium uppercase">USD</span>
+                        <p className="text-lg font-bold text-green-700">
+                          ≈ {formatConvertedPrice(displayPrice, 'USD')}
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="bg-green-50 border border-green-200 px-4 py-2 rounded-lg">
+                      <span className="text-xs text-green-600 font-medium uppercase">USD</span>
+                      <p className="text-lg font-bold text-green-700">
+                        ≈ {formatConvertedPrice(displayPrice, 'USD')}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <p className="text-gray-700 mb-6">{product.description}</p>
             </div>
