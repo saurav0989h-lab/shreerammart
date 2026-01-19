@@ -41,7 +41,6 @@ export default function AdminSidebar({ user, isOpen, onClose, pendingOrders = 0 
     { name: 'Payment Settings', page: 'AdminPaymentSettings', icon: Settings },
     { name: 'Reviews', page: 'AdminReviews', icon: MessageSquare },
     { name: 'Customers', page: 'AdminCustomers', icon: Users },
-    { name: 'Admin Settings', page: 'AdminSettings', icon: Users },
   ];
 
   const handleLogout = () => {
@@ -84,18 +83,33 @@ export default function AdminSidebar({ user, isOpen, onClose, pendingOrders = 0 
         {/* Settings Group - Only for Admin */}
         {!isSubAdmin && (
           <div className="pt-2">
-            <button
-              onClick={() => setSettingsOpen(!settingsOpen)}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors text-gray-400 hover:bg-gray-800 hover:text-white w-full"
-            >
-              <Settings className="w-5 h-5" />
-              <span>Settings</span>
-              {settingsOpen ? (
-                <ChevronDown className="w-4 h-4 ml-auto" />
-              ) : (
-                <ChevronRight className="w-4 h-4 ml-auto" />
-              )}
-            </button>
+            <div className={`flex items-center justify-between px-4 py-3 rounded-xl transition-colors w-full ${currentPage === 'AdminSettings'
+              ? 'bg-gray-800 text-white'
+              : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+              }`}>
+              <Link
+                to={createPageUrl('AdminSettings')}
+                onClick={onClose}
+                className="flex items-center gap-3 flex-1"
+              >
+                <Settings className="w-5 h-5" />
+                <span>Settings</span>
+              </Link>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setSettingsOpen(!settingsOpen);
+                }}
+                className="p-1 hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                {settingsOpen ? (
+                  <ChevronDown className="w-4 h-4" />
+                ) : (
+                  <ChevronRight className="w-4 h-4" />
+                )}
+              </button>
+            </div>
 
             {settingsOpen && (
               <div className="ml-4 mt-1 space-y-1">
