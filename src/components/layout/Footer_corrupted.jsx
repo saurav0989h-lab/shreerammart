@@ -7,58 +7,6 @@ import { MapPin, Phone, Mail, Clock, ExternalLink, Store, Shield, CreditCard, Tr
 import LanguageSelector from './LanguageSelector';
 
 export default function Footer() {
-  const { t } = useLanguage();
-
-  const { data: stores = [] } = useQuery({
-    queryKey: ['footer-stores'],
-    queryFn: () => base44.entities.ShopLocation.filter({ is_active: true }),
-  });
-
-  const nepalPaymentMethods = [
-    'Cash on Delivery (COD)',
-    'eSewa',
-    'Fonepay',
-    'Bank Transfer'
-  ];
-
-  const indiaPaymentMethods = [
-    'UPI',
-    'PhonePe'
-  ];
-
-  const internationalPaymentMethods = [
-    'Visa',
-    'Mastercard',
-    'American Express',
-    'PayPal'
-  ];
-
-  const getGoogleMapsUrl = (store) => {
-    if (store.google_maps_url) return store.google_maps_url;
-    if (store.latitude && store.longitude) {
-      return `https://www.google.com/maps?q=${store.latitude},${store.longitude}`;
-    }
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.address + ', Dang, Nepal')}`;
-  };
-
-  return (
-    <footer className="bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-gray-100">
-      {/* Top Section with Features */}
-      <div className="border-b border-gray-700/50">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-10 sm:py-12">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-            <div className="flex items-center gap-4 p-5 sm:p-6 bg-gradient-to-br from-emerald-500/10 to-green-500/5 rounded-2xl backdrop-blur-sm border border-emerald-500/20 hover:border-emerald-500/40 transition-all">
-              <div className="w-12 sm:w-14 h-12 sm:h-14 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center flex-shrink-0 shadow-lg">
-                <Truck className="w-6 sm:w-7 h-6 sm:h-7 text-white" />
-              </div>
-              <div>
-                <h4 className="font-bold text-white mb-1 text-sm sm:text-base">Free Delivery</h4>
-                <p className="text-xs sm:text-sm text-gray-300">On orders over Rs. 1500</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 p-5 sm:p-6 bg-gradient-to-br from-purple-500/10 to-pink-500/5 rounded-2xl backdrop-blur-sm border border-purple-500/20 hover:border-purple-500/40 transition-all">
-              <div className="w-12 sm:w-14 h-12 sm:h-14 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center flex-shrink-0 shadow-lg">
-                <CreditCard className="w-6 sm:w-7 h-6 sm:h-7 text-white" />
               </div>
               <div>
                 <h4 className="font-bold text-white mb-1 text-sm sm:text-base">Multiple Payment</h4>
@@ -105,7 +53,7 @@ export default function Footer() {
               <LanguageSelector />
             </div>
             
-            {/* Payment Methods Box */}
+            {/* Payment Methods Box */
             <div className="mt-6 bg-gradient-to-br from-gray-800/50 to-gray-800/30 rounded-xl p-5 border border-gray-700/50 backdrop-blur-sm">
               <div className="flex items-center gap-2 mb-4">
                 <CreditCard className="w-5 h-5 text-purple-400" />

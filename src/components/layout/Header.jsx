@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { ShoppingCart, Menu, Phone, MapPin, User, LogOut, Globe, Search, Heart, Package, Percent, Sparkles, ListChecks } from 'lucide-react';
+import { ShoppingCart, Menu, Phone, MapPin, User, LogOut, Search, Heart, Package, Percent, Sparkles, ListChecks } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCart } from '@/components/ui/CartContext';
@@ -18,11 +18,9 @@ export default function Header({ user, onLogout }) {
   const [searchQuery, setSearchQuery] = useState('');
   const { cartCount } = useCart();
   const { wishlistCount } = useWishlist();
-  const { language, toggleLanguage, t } = useLanguage();
+  const { t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
-  const nextLanguage = language === 'en' ? 'np' : (language === 'np' ? 'hi' : 'en');
-  const nextLanguageLabel = { en: 'English', np: 'नेपाली', hi: 'हिन्दी' }[nextLanguage];
 
   const navLinks = [
     { name: t('home'), path: 'Home', icon: Sparkles },
@@ -68,13 +66,6 @@ export default function Header({ user, onLogout }) {
               </span>
             </div>
             <div className="flex items-center gap-4">
-              <button
-                onClick={toggleLanguage}
-                className="flex items-center gap-1 hover:bg-white/20 px-3 py-1 rounded-full transition-all"
-              >
-                <Globe className="w-3.5 h-3.5" />
-                {nextLanguageLabel}
-              </button>
               {user?.role === 'admin' && (
                 <Link to={createPageUrl('AdminDashboard')} className="underline hover:bg-white/20 px-3 py-1 rounded-full transition-all">
                   {t('adminPanel')}
@@ -291,13 +282,6 @@ export default function Header({ user, onLogout }) {
                     </nav>
 
                     <div className="py-6 border-t space-y-3">
-                      <button
-                        onClick={toggleLanguage}
-                        className="flex items-center gap-2 text-sm text-purple-600 font-medium hover:bg-purple-50 w-full py-2 px-3 rounded-lg transition-all"
-                      >
-                        <Globe className="w-4 h-4" />
-                        {`Switch to ${nextLanguageLabel}`}
-                      </button>
                       <div className="flex items-center gap-2 text-sm text-gray-600 px-3">
                         <Phone className="w-4 h-4" /> +977-9844988588
                       </div>

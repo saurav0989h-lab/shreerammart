@@ -89,7 +89,7 @@ export default function About() {
               {
                 icon: ShoppingBag,
                 title: 'Wide Product Range',
-                description: 'From fresh vegetables and dairy to bakery items and furniture - all in one place'
+                description: 'From fresh grocery and dairy to bakery items and furniture - all in one place'
               },
               {
                 icon: Truck,
@@ -162,11 +162,11 @@ export default function About() {
           <div className="flex flex-wrap justify-center gap-6 mb-8">
             <div className="flex items-center gap-2">
               <Phone className="w-5 h-5" />
-              <span>+977-9800000000</span>
+              <span>+977-9844988588</span>
             </div>
             <div className="flex items-center gap-2">
               <Mail className="w-5 h-5" />
-              <span>info@dangbazaar.com</span>
+              <span>saurav0945m@gmail.com</span>
             </div>
           </div>
           <Link to={createPageUrl('Contact')}>
