@@ -128,7 +128,9 @@ function _getCurrentPage(url) {
     }
 
     const pageName = Object.keys(PAGES).find(page => page.toLowerCase() === urlLastPart.toLowerCase());
-    return pageName || Object.keys(PAGES)[0];
+    const result = pageName || Object.keys(PAGES)[0];
+    console.log('[DEBUG] _getCurrentPage:', { url, urlLastPart, pageName: result });
+    return result;
 }
 
 // Create a wrapper component that uses useLocation inside the Router context

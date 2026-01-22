@@ -43,6 +43,7 @@ export default function Layout({ children, currentPageName }) {
 
   // Admin pages have their own layout
   const isAdminPage = currentPageName?.startsWith('Admin');
+  console.log('[DEBUG] Layout:', { currentPageName, isAdminPage });
 
   if (isAdminPage) {
     return (

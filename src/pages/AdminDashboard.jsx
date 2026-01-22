@@ -37,17 +37,25 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const checkAuth = async () => {
+      console.log('[DEBUG] AdminDashboard: Checking authentication...');
       const isAuth = await base44.auth.isAuthenticated();
+      console.log('[DEBUG] AdminDashboard: isAuthenticated =', isAuth);
+      
       if (!isAuth) {
+        console.log('[DEBUG] AdminDashboard: Not authenticated, redirecting to login');
         navigate(createPageUrl('AdminLogin'));
         return;
       }
       const userData = await base44.auth.me();
+      console.log('[DEBUG] AdminDashboard: User data =', userData);
+      
       if (userData.role !== 'admin' && userData.role !== 'subadmin') {
+        console.log('[DEBUG] AdminDashboard: User is not admin, redirecting to home');
         navigate(createPageUrl('Home'));
         return;
       }
       setUser(userData);
+      console.log('[DEBUG] AdminDashboard: Authentication successful, user set');
     };
     checkAuth();
   }, [navigate]);
